@@ -1,8 +1,8 @@
 export default {
   url: 'https://tigger.dev',
-  title: 'fronttigger',
+  title: 'fronttigger의 블로그',
   subtitle: 'fronttigger',
-  description: "fronttigger's blog",
+  description: '프론트엔드에 대한 이야기를 공유해요',
   thumbnail: '/main-thumbnail.png',
   author: {
     name: 'fronttigger',
