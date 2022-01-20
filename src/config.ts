@@ -3,10 +3,10 @@ export default {
   title: 'fronttigger',
   subtitle: 'fronttigger',
   description: "fronttigger's blog",
-  thumbnail: '/tigger.jpeg',
+  thumbnail: '/main-thumbnail.jpeg',
   author: {
     name: 'fronttigger',
-    thumbnail: '/tigger.jpeg',
+    thumbnail: '/logo.jpeg',
     bio: 'frontend engineer',
     contacts: {
       email: 'fronttigger@gmail.com',
