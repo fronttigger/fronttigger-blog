@@ -23,5 +23,6 @@ export interface Post {
 export interface PostSeo {
   title: string
   description: string
+  thumbnailImg?: string
   tags: string[]
 }
