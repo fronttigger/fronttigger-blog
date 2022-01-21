@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import { InView } from 'react-intersection-observer'
-import { useSetRecoilState, useRecoilValue } from 'recoil'
+import { useSetRecoilState, useRecoilValue, useRecoilState } from 'recoil'
 import config from 'config'
 
 import * as styles from '#shared/styles/pages/posts/styles.css'
@@ -13,10 +13,10 @@ import { Post } from '#types/post'
 import { getAllPosts } from '#utils/posts'
 
 function PostsPage({ allPosts }: { allPosts: Post[] }) {
-  const setPosts = useSetRecoilState(allPostsState)
-  const setPage = useSetRecoilState(pageState)
+  const [posts, setPosts] = useRecoilState(allPostsState)
   const currentPosts = useRecoilValue(currentPostsState)
   const hasNextPostsPage = useRecoilValue(hasNextPostsPageState)
+  const setPage = useSetRecoilState(pageState)
 
   const handleChangeInview = (inView: boolean, index: number): void => {
     if (inView && index === currentPosts.length - 3 && hasNextPostsPage) {
@@ -24,7 +24,11 @@ function PostsPage({ allPosts }: { allPosts: Post[] }) {
     }
   }
 
-  useEffect((): void => setPosts(allPosts), [allPosts, setPosts])
+  useEffect((): void => {
+    if (posts.length === 0) {
+      setPosts(allPosts)
+    }
+  }, [allPosts, posts.length, setPosts])
 
   return (
     <>
