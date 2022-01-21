@@ -3,8 +3,8 @@ import { defineProperties, createSprinkles } from '@vanilla-extract/sprinkles'
 import { theme } from './theme.css'
 
 export const mediaQuery = {
-  mobile: 'screen and (max-width: 375px)',
-  tablet: 'screen and (min-width: 376px)',
+  mobile: 'screen and (max-width: 576px)',
+  tablet: 'screen and (min-width: 577px)',
   desktop: 'screen and (min-width: 769px)',
 }
 
