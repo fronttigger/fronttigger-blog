@@ -1,0 +1,343 @@
+---
+title: 옵저버 패턴을 활용하여 인스타그램 피드 렌더링 해보기 #required
+tags:
+  - javascript
+  - observer pattern
+  - design pattern
+published: true # required
+date: '2020. 9. 9' # required
+description: '스타크래프트는 참 어려워..' # required
+thumbnailImg: '/thumbnail/2020/09/javascript/observer.jpeg' # required
+---
+
+## 옵저버 패턴
+
+옵저버 패턴은 디자인 패턴중에 하나로서 스타크래프트의 옵저버 처럼 **관찰**을 하는 역할을 수행합니다. 그 관찰한 결과를 본진(넥서스)에서 관리하여 다음 행동을 수행하죠?
+
+프로그래밍에서도 똑같습니다.
+
+옵저버를 가지고 있는(상속받는) **객체**는 항상 관찰을 당하고 있으며, lifecycle을 감지하여 해당 **정보(데이터, 행동)를 본체에게 넘겨 관리**를 시키게 됩니다.
+
+만약 이런 디자인패턴을 사용하지 않고 일반적으로 구현을 하게 된다면 각각의 객체별로 변수와 메소드를 관리하게 될 것이고, 이는 가독성이 떨어지는 코드와 재사용성이 없는 객체들이 계속 생겨날 것입니다.
+
+그래서 옵저버 패턴을 활용하여 인스타그램 피드 부분을 만들어보며 학습해보겠습니다.
+
+공부를 하며 습득한 내용을 정리한 글이니 잘못되었거나 추가할 부분이 있으면 언제든 말씀 부탁드립니다. :)
+
+### Subject (전역, 본체)
+
+```javascript
+class Subject {
+  observerCollection = []
+
+  constructor() {
+    this.app = document.getElementById('app')
+  }
+
+  render() {
+    this.app.innerHTML += this.observerCollection.map((component) => component.render()).join('')
+  }
+
+  registration(observer) {
+    this.observerCollection.push(observer)
+  }
+}
+
+const subject = new Subject()
+
+module.exports = { Subject, subject }
+```
+
+Subject는 전역 객체로써 트리구조의 **가장 최상단**을 관리합니다.
+
+그리고 등록된 **최상위 컴포넌트**(여기선 피드 객체 하나)를 반복하며 render를 해주는 메소드를 만들어주었습니다.
+
+최초 1회만 객체를 생성하여야 하기 때문에 생성한 객체를 내보내줍니다.
+
+이 객체에서는 말 그대로 **전역을 관리**하는 넥서스라고 보시면 됩니다. 넥서스에서 옵저버의 정보를 받아와 다음 행동을 판단하고 수행하듯이 여기서 관찰한 객체를 판단해서 등록하고, 최종적으론 렌더해주는 역할을 수행합니다.
+
+### Observable (관찰, 옵저버)
+
+```javascript
+const { subject } = require('./Subject')
+
+class Observable {
+  registration(target) {
+    if (target) {
+      subject.registration(target)
+    }
+  }
+}
+
+module.exports = Observable
+```
+
+이 객체의 뜻은 **관찰 가능한 것**을 말합니다. 즉, 이 객체를 가지고 있게 되면 관찰되고 있는 대상이 되는 것이죠
+
+그러면 그 대상은 항상 전역에서 관리가 되어야 하니 이전에 생성한 subject 객체를 가지고 있어야 할 것이고, 만약 최상단의 컴포넌트가 있다면 전역에서 관리할 컴포넌트 대상이기 때문에 추가를 해주어야 합니다.
+
+### Component (컴포넌트, 대상)
+
+```javascript
+const Observable = require('./Observable')
+
+class Component extends Observable {
+  components = []
+
+  constructor(parent) {
+    super()
+    super.registration(!parent ? this : null)
+    if (parent) {
+      parent.addChild(this)
+    }
+  }
+
+  addChild(child) {
+    this.components.push(child)
+  }
+}
+
+module.exports = Component
+```
+
+컴포넌트에서는 항상 관찰의 대상이 되고 행동을 감시당할 수 있도록 하기 위해 Observable을 상속받습니다.
+
+여기서는 해당 컴포넌트가 트리의 최상위인지 아닌지를 판별하여 만약 최상위라면 해당 컴포넌트를 전역에 등록하고, 아니면 부모의 자식 컴포넌트로 넣어주는 역할을 담당합니다.
+
+이제 위 세가지를 활용한 실제 렌더되는 컴포넌트를 만들 차례입니다. 이 컴포넌트들은 항상 관찰되어야 하니 Component를 상속받아 부모객체의 여부를 선언해주어 차후 렌더링에 사용됩니다.
+
+### Feed
+
+```javascript
+const Component = require('./lib/Component')
+
+class Feed extends Component {
+  constructor() {
+    super()
+  }
+
+  render() {
+    return `<article class="feed">${this.components
+      .map((component) => component.render())
+      .join('')}</article>`
+  }
+}
+
+module.exports = Feed
+```
+
+Feed 컴포넌트는 **최상위 컴포넌트(부모)**이므로 따로 parent를 넘기지 않았습니다. 그렇다면 subject에서 관리가 되는 대상이고 컴포넌트 객체에 자식들이 등록이 될 것이기 때문에 this로 감시하는 컴포넌트에 접근하여 자식들을 렌더링해줍니다.
+
+### Header
+
+```javascript
+const Component = require('./lib/Component')
+
+class Header extends Component {
+  constructor(parent, thumbnail, nickname) {
+    super(parent)
+    this.thumbnail = thumbnail
+    this.nickname = nickname
+  }
+
+  render() {
+    return `
+    <header class="feed-header">
+      <div class="user-profile">
+        <a class="thumbnail" href="">
+          <img src="${this.thumbnail}" alt="userthumbnail" />
+        </a>
+        <a class="nickname" href="">
+          <span>${this.nickname}</span>
+        </a>
+      </div>
+      <div class="user-tab">
+        <button type="button">
+          <img src="../src/images/more.png" alt="" />
+        </button>
+      </div>
+    </header>
+    `
+  }
+}
+
+module.exports = Header
+```
+
+Header는 각각의 피드 안에 최상단에 위치하여 썸네일과 닉네임을 표시해줍니다.
+
+그래서 parent를 받고 Feed의 자식으로 등록이 됩니다.
+
+### Picture
+
+```javascript
+const Component = require('./lib/Component')
+
+class Picture extends Component {
+  constructor(parent, pictures) {
+    super(parent)
+    this.pictures = pictures
+  }
+
+  render() {
+    return `
+      <div class="main-pictures">
+        <ul class="pictures">
+            ${this.pictures.map(
+              (picture) =>
+                `
+              <li class="picture">
+                <img src="${picture.picture}" alt="" />
+              </li>
+              `,
+            )}
+        </ul>
+      </div>
+      `
+  }
+}
+
+module.exports = Picture
+```
+
+Picture는 메인 사진이 올라오는 부분으로 마찬가지로 Feed를 부모로 가지고 있기 때문에 parent를 가지고 있습니다.
+
+### Detail
+
+```javascript
+const Component = require('./lib/Component')
+
+class Detail extends Component {
+  constructor(parent, nickname, likes, content, comments, date) {
+    super(parent)
+    this.nickname = nickname
+    this.likes = likes
+    this.content = content
+    this.comments = comments
+    this.date = date
+  }
+
+  render() {
+    return `
+      <div class="feed-detail">
+      <div class="feed-info">
+        <div class="tabs">
+          <div class="left-tab">
+            <span class="like">
+              <img src="../src/images/heart.png" alt="" />
+            </span>
+            <span class="comment">
+              <img src="../src/images/comment.png" alt="" />
+            </span>
+            <span class="share">
+              <img src="../src/images/share.png" alt="" />
+            </span>
+          </div>
+          <div class="right-tab">
+            <span class="pictures-length"></span>
+            <span class="save">
+              <img src="../src/images/save.png" alt="" />
+            </span>
+          </div>
+        </div>
+        <div class="likes">
+          <button type="button">
+            좋아요
+            <span class="likes-length">${this.likes.length}</span>
+          </button>
+        </div>
+        <div class="contents">
+          <span class="nickname">${this.nickname}</span>
+          <span class="content"
+            >${this.content}</span
+          >
+          <span class="more">
+            <button type="button">더보기</button>
+          </span>
+        </div>
+        <div class="comments">
+          <a class="comments-length" href="">
+            <span>댓글 ${this.comments.length}개 모두 보기</span>
+          </a>
+          <ul class="comment-lists">
+          ${this.comments
+            .map(
+              (comment) =>
+                `
+              <li class="list">
+                <div class="comment-info">
+                  <span class="nickname">
+                    <a href="">${comment.nickname}</a>
+                  </span>
+                  <span class="list">${comment.comment}</span>
+                </div>
+              </li>
+              `,
+            )
+            .join('')}
+          </ul>
+          <div class="since">
+            <a href="">
+              <span>${this.date}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="comment-area">
+      <form action="POST">
+        <textarea class="text-comment" placeholder="댓글 달기..."></textarea>
+        <button type="button">게시</button>
+      </form>
+    </div>
+      `
+  }
+}
+
+module.exports = Detail
+```
+
+Detail은 글의 내용부터 댓글, 댓글 등록 등 게시글에 대한 세부 정보들이 다 들어있습니다.
+
+마찬가지로 Feed에 포함되는 내용이기 때문에 parent를 가지고 있습니다.
+
+자 이제 컴포넌트를 실제로 인스턴스화 하여 사용해보겠습니다.
+
+### Index
+
+```javascript
+const datas = require('./data.json')
+const { subject } = require('./src/lib/Subject')
+
+const Feed = require('./src/Feed')
+const Header = require('./src/Header')
+const Picture = require('./src/Picture')
+const Detail = require('./src/Detail')
+
+datas.forEach((data) => {
+  const feed = new Feed()
+  new Header(feed, data.thumbnail, data.nickname)
+  new Picture(feed, data.pictures)
+  new Detail(feed, data.nickname, data.likes, data.content, data.comments, data.date)
+})
+
+subject.render()
+```
+
+특정 데이터들을 받아와 반복하면서 가장 최상위 객체인 Feed를 생성합니다.
+
+그리고 나머지 컴포넌트들은 Feed의 자식이니 인스턴스화를 하면서 부모인 feed를 가져와 함께 생성해줍니다.
+
+마지막으로 전역에 등록된 Feed를 렌더링합니다.
+
+### 결과
+
+![observer response](/images/2020/09/javascript/observer-response.png)
+
+전역에서는 총 2개의 Feed가 등록되었으며, 자식 컴포넌트는 의도된바와 같이 세 컴포넌트가 정상적으로 등록된 것을 콘솔로 확인할 수 있습니다.
+
+![observer result](/images/2020/09/javascript/observer-result.png)
+
+렌더링 또한 아주 잘 되었군요! 👍
+
+이렇게 각각의 컴포넌트들을 항상 관찰하며 컴포넌트를 활용할 수 있습니다. 옵저버 패턴의 단점인 컴포넌트가 너무 많아 복잡해지는 것을 트리구조로 극복하여 보다 나은 재사용성과 가독성을 가져올 수 있습니다.

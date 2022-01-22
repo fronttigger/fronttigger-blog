@@ -26,7 +26,11 @@ export const title = style([
       mobile: 'large',
     },
   }),
-  { fontWeight: theme.fontWeight.bold, color: theme.colors.domain.detail.title },
+  {
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.domain.detail.title,
+    textAlign: 'center',
+  },
 ])
 
 export const date = style([
