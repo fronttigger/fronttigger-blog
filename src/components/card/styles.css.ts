@@ -15,8 +15,8 @@ export const imageContainer = style([
     },
   }),
   {
-    minWidth: '160px',
-    height: '134px',
+    minWidth: '192px',
+    height: '144px',
     marginRight: theme.space.xlarge,
   },
 ])

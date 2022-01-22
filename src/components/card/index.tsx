@@ -10,7 +10,7 @@ export default function Card({ frontMatter }: { frontMatter: FrontMatter }) {
   return (
     <article className={styles.container}>
       <div className={styles.imageContainer}>
-        <Image src={thumbnailImg || ''} width="160px" height="134px" />
+        <Image src={thumbnailImg || ''} width="192px" height="144px" />
       </div>
       <div className={styles.textContainer}>
         <h3 className={styles.title}>{postTitle}</h3>
