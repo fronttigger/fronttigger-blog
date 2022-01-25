@@ -47,7 +47,10 @@ async function retreiveAllPosts(): Promise<Post[]> {
   }
 
   return publishedPosts.sort((a, b) => {
-    if (a.frontMatter.date < b.frontMatter.date) {
+    const prevDate = new Date(a.frontMatter.date)
+    const nextDate = new Date(b.frontMatter.date)
+
+    if (prevDate < nextDate) {
       return 1
     } else {
       return -1
