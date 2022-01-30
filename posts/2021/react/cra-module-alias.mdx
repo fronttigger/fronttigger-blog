@@ -1,0 +1,169 @@
+---
+title: CRA Typescript 환경에서 Module Alias 설정하기 #required
+tags:
+  - typescript
+  - react
+  - craco
+  - module
+  - alias
+published: true # required
+date: '2021. 1. 26' # required
+description: '별칭 정하기가 이렇게 힘들어서야..' # required
+thumbnailImg: '/thumbnail/2021/01/react/module-alias.png' # required
+---
+
+## Module Alias
+
+React 개발을 하면서 정말 많은 모듈들, 컴포넌트들을 `import`, `export`하게 됩니다.
+
+규모가 작은 프로젝트면 크게 번거롭지 않지만, 규모가 크거나 지속적으로 늘어나는 모듈과 컴포넌트들 때문에 정말 헷갈리고 관리하기 번거롭습니다.
+
+그래서 특정 디렉토리의 **별칭**을 정해주어서 해당 디렉토리에 바로 접근할 수 있도록 해주는 방법을 통해 이 문제를 해결하기도 합니다.
+
+## CRA의 말썽
+
+당장 구글링을 하고 CRA로 TS환경의 프로젝트를 생성하고 세팅을 하다보면 큰 충격에 빠지게 됩니다.
+
+바로 npm을 실행시키는 순간 기껏 세팅해놓은 tsconfig.json이 **처음의 설정으로 리셋** 되버립니다.
+
+저는 처음에 제 눈을 의심했습니다.
+그래서 다시 한 번 설정을 하고 npm을 실행시켰습니다.
+
+그래도 또 똑같은 현상의 반복.. 😇
+
+그 이유는 CRA의 초기 세팅 중 webpack 관련된 설정 중에 `tsconfig.json`에 특정 조건 ( 현재 예로는 **path** 관련 설정 )이 있을 경우 초기화를 하는 이슈가 있었습니다.
+
+이를 해결하기 위해서는 eject 명령어를 통해 webpack을 개발자 손으로 세팅하면 되지만..
+다시는 되돌릴 수 없을 뿐더러 굉장히 비효율적이라고 느꼈습니다.
+
+그래서 이를 해결할 수 있는 라이브러리를 찾아 헤매던 도중
+`craco`라는 라이브러리를 발견하였고 저와 같은 고통을 받는 개발자들에게는 이미 유명인사급 라이브러리었습니다.
+
+한 번 사용해서 편한 import를 누려보겠습니다.
+
+❗️ 이 글은 개인적으로 학습한 정보와 지식, 예제에서는 [craco](https://www.npmjs.com/package/@craco/craco), [craco-alias](https://github.com/risenforces/craco-alias#readme)를 살펴보며 작성된 글입니다. 혹시 잘못된 부분이 있거나 수정사항이 있다면 말씀해주시면 반영하겠습니다. 🙏
+
+## craco 라이브러리 설치
+
+```bash
+npm install @craco/craco
+npm install -D craco-alias
+```
+
+craco를 사용하기 위해서는 위 두 가지 의존성을 설치해야합니다.
+
+## tsconfig.paths.json
+
+tsconfig.paths.json는 기존에 tsconfig.json이 초기화가 되기 때문에, 이를 방지하기 위해 path 관련된 설정들을 따로 모아 추가로 세팅한 모듈입니다. 물론 파일명은 임의로 해주셔도 되며 추후 craco 관련 모듈에서 **파일명을 동일하게 해주는 것**만 기억해주시면 됩니다.
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@components/*": ["src/components/*"]
+    }
+  }
+}
+```
+
+root 디렉토리에 모듈을 생성해줍니다.
+
+그리고 **baseUrl, paths**를 설정하여 사용하고 싶은 별칭을 설정해줍니다.
+
+## craco.config.js
+
+craco.config.js는 추가로 세팅한 tsconfig 옵션들을 craco-alias를 사용하여 적용시키도록 하는 모듈입니다.
+
+마찬가지로 root 디렉토리에 모듈을 생성해줍니다.
+
+```javascript
+const CracoAlias = require('craco-alias')
+
+module.exports = {
+  plugins: [
+    {
+      plugin: CracoAlias,
+      options: {
+        source: 'tsconfig',
+        baseUrl: '.',
+        tsConfigPath: 'tsconfig.paths.json',
+        debug: false,
+      },
+    },
+  ],
+}
+```
+
+앞서 설치했던 craco-alias를 사용하게 되며, 여기서 중요한 점은 baseUrl은 tsconfig.paths.json에서 선언해준 baseUrl과 동일하게 맞춰주어야 합니다. tsConfigPath는 path 설정을 추가한 모듈을 선언해줍니다.
+
+## tsconfig.json
+
+이제 원조 tsconfig.json에 추가로 설정한 모듈을 넣어주어야 합니다.
+
+```json
+{
+  "extends": "./tsconfig.paths.json",
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "craco.config.js"]
+}
+```
+
+추가된 부분은 **extends, includes** 부분인데 extends는 말 그대로 추가로 설정한 파일을 상속받아주는 역할을 하고, includes는 해당 모듈을 포함하여주는 역할을 합니다.
+
+그래서 path를 설정한 tsconfig.paths.json 파일은 상속을 받아주고, 설정에 포함시킬 craco 관련 모듈을 include 시켜줍니다.
+
+## package.json
+
+아직 설정이 끝난게 아닙니다.
+
+craco를 통해 npm을 실행시켜야 해서 아래와 같은 스크립트문을 입력합니다.
+
+```json
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
+```
+
+이제 모든 준비가 끝났습니다.
+
+한 번 컴포넌트를 import 해보겠습니다.
+
+```javascript
+import React from 'react'
+import Text from '@components/text'
+
+const App = () => {
+  return (
+    <div className="App">
+      <Text />
+    </div>
+  )
+}
+
+export default App
+```
+
+![module alias success](/images/2021/01/react/module-alias-success.png)
+
+이상없이 잘 동작합니다!!
