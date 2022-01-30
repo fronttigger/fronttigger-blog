@@ -1,0 +1,141 @@
+---
+title: 사용자 정의 타입 가드로 컴포넌트 props 다루기 #required
+tags:
+  - typescript
+  - react
+  - typeguard
+  - props
+published: true # required
+date: '2021. 7. 29' # required
+description: '인생엔 props 뿐만 아니라 막을게 너무나도 많다..' # required
+thumbnailImg: '/thumbnail/2021/01/typescript/type-guard.png' # required
+---
+
+## 타입 가드(Type Guards)가 뭐예요..? 🤔
+
+타입 가드는 단어에서 유추가 가능하듯이 **타입을 방어**해준다는 의미입니다.
+
+예를 들어, 어떤 **UNION 타입**의 인자가 있을 때 그 타입 중 어떤 타입을 선택하여 함수를 이룰지 결정하는 부분이 됩니다.
+
+```javascript
+function typeGuard(type: OneType | TwoType) {
+  // do something..
+}
+```
+
+위와 같은 예시가 될텐데요!
+
+여기서 타입가드를 사용하지 않는다면 두 타입이 구분이 되지 않아 원치 않는 결과가 발생할 확률이 높아집니다.
+
+하지만 여기서 타입 가드를 사용하여 특정 타입에 대한 조건을 만족시키면 개발자가 원하는 결과를 얻도록 도와주게 되고,
+
+이 때 가장 중요한 점은 런타임 단계가 아닌 **컴파일 단계**에서 일명 빨간줄로 알려주기 때문에 잘못된 타입에 대한 접근이란 것을 손쉽게 눈치챌 수 있어 굉장히 안정적으로 개발할 수 있게 됩니다. 😁
+
+타입 가드의 종류로는 `typeof`, `instanceof`, `사용자 정의`를 활용하여 할 수 있으며, 이번 글에서는 사용자 정의 타입 가드를 통해 컴포넌트의 props를 한 번 다루어 보겠습니다.
+
+❗️ 이 글은 개인적으로 학습한 정보와 지식으로 작성된 글입니다. 혹시 잘못된 부분이 있거나 수정사항이 있다면 말씀해주시면 반영하겠습니다. 🙏
+
+## 사용자 정의 타입 가드(User-Defined Type Guards)
+
+사용자 정의 타입 가드를 사용할 때는 특정 조건일 때 반환할 타입을 정의하는 방식으로 사용됩니다.
+
+여기서 중요한 포인트는 **조건** 그리고 **반환 타입**입니다.
+
+그러면 위 두가지 포인트를 기억하고 코드를 보겠습니다.
+
+```javascript
+interface PrimaryButtonProps {
+  type: 'Primary';
+  size?: 'Small' | 'Medium';
+}
+
+interface SecondaryButtonProps {
+  type: 'Secondary';
+  size?: 'Small' | 'Medium';
+  perpose: 'Redirect' | 'Toggle';
+}
+
+type ButtonProps = PrimaryButtonProps | SecondaryButtonProps
+```
+
+자.. 위의 두 인터페이스가 있습니다.
+
+여기서 두 인터페이스의 차이는 type이 다르고 SecondaryButton은 perpose라는 타입을 추가로 가지고 있습니다.
+
+```javascript
+function isPrimaryButton(type: ButtonProps): type is PrimaryButtonProps {
+  return type.type === 'Primary'
+}
+```
+
+뭔가 평소와는 다른 함수의 리턴 타입이 보이시나요?
+
+바로 **is** 라는 키워드를 통해 PrimaryButtonProps를 가리키고 있죠?
+
+그리고 인자에는 UNION 타입을 넣어주었습니다. 그래야 둘 중 특정 하나의 타입을 판별해서 타입 가드를 해줄 수 있겠죠? 😮
+
+여기서 눈치가 빠르신 분들은 아셨을 수도 있지만 바로 **인자**와 리턴 타입의 is의 **주어**는 **동일**해야 합니다.
+
+그리고 타입을 구분할 수 있는 인터페이스의 type을 통해 Primary인지 구별해주면 됩니다.
+
+설명은 뭔가 복잡해 보였지만 막상 보니 몇줄 되지 않아서 뻘쭘하네요.. 😅
+
+이젠 요 친구를 활용해서 컴포넌트에 적용시켜 보겠습니다!
+
+## 컴포넌트에 적용 해보기
+
+React 개발을 해보신 분들이라면 아시겠지만 컴포넌트의 역할이 작으면 상관이 없지만 프로젝트의 규모가 커지거나, 컴포넌트의 역할이 비대해지면 그만큼 비례하게 props가 많아지는 것을 경험하실텐데요 🤪
+
+그럴 때 많아진 props에 대한 특정 조치가 취해지지 않으면 그 컴포넌트는 사용 및 관리가 시간이 갈수록 힘들어질 것입니다.
+
+위에 타입에서도 유추할 수 있었듯이, 간단한 버튼 컴포넌트를 만든다고 가정해 보겠습니다.
+
+```javascript
+function Button(type: ButtonProps & { children?: React.ReactNode }) {
+  if (isPrimaryButton(type)) {
+    return <PrimaryButton size={type.size}>{type.children}</PrimaryButton>
+  }
+}
+```
+
+컴포넌트의 props에는 우리가 원하는 타입들 중 하나를 넣을 수 있게 UNION 타입을 넣어줍니다.
+
+그리고 여기서 가장 중요한 **조건**을 통해서 우리가 방금 만들었던 타입 가드 함수를 사용합니다.
+
+우리가 이전에 만든 함수의 조건이 뭐였죠? 바로 **type**입니다.
+
+위 조건문으로 보았을 때 만약 prop의 type이 Primary라면 조건이 true로 만족해서 PrimaryButtonProps를 가진 컴포넌트가 될겁니다.
+
+그렇다면 이제 SecondaryButtonProps는 어떻게 된걸까요?
+
+만약 경찰에게 잡힌 용의자가 A와 B가 있다고 생각해보죠.. 둘 중 무조건 하나는 범인인데 A가 범인이 아닌걸로 판명이 났습니다..
+
+그러면 당연히 B가 범인이겠죠?
+
+UNION 타입이니 당연히 PrimaryButtonProps가 아니기 때문에 SecondaryButtonProps로 넘어갈겁니다.
+
+```javascript
+function Button(type: ButtonProps & { children?: React.ReactNode }) {
+  if (isPrimaryButton(type)) {
+    return <PrimaryButton size={type.size}>{type.children}</PrimaryButton>
+  }
+
+  return (
+    <SecondaryButton perpose={type.perpose} size={type.size}>
+      {type.children}
+    </SecondaryButton>
+  )
+}
+```
+
+자 이렇게 정말 간단한 타입 가드를 적용한 코드가 완성되었습니다.
+
+이제 코드를 확인해보면 정말 놀라운 일이 펼쳐집니다!
+
+![props dening](/images/2021/01/typescript/props-deny-gif.gif)
+
+![props denied](/images/2021/01/typescript/props-deny.png)
+
+이제 정해진 prop에 대한 값이 아니라면 애초에 다른 props들에 접근하지 못하게 되었습니다!
+
+물론 요 방법도 완벽한 방법은 아니지만 이번 계기를 통해서 props도 이렇게 다룰 수 있다는 것을 알아보는 계기가 되었으면 좋겠습니다! 😀
