@@ -1,0 +1,367 @@
+---
+title: 나만의 커스텀 Lint 제작기 (feat. ESLint, Prettier, Stylelint) #required
+tags:
+  - javascript
+  - typescript
+  - react
+  - prettier
+  - stylelint
+  - convention
+published: true # required
+date: '2022. 2. 1' # required
+description: '커스텀을 위한 커스텀' # required
+thumbnailImg: '/thumbnail/2022/02/javascript/custom-lint.png' # required
+---
+
+## 커스텀 린트는 갑자기 왜?
+
+프로젝트를 처음 셋업할 때마다 ESLint와 Prettier 등을 일일이 설정해주는 일은 여간 귀찮은게 아닙니다.
+
+설정법을 완벽히 숙지하고 백지상태에서 만들기는 거의 마법에 가까우며 규칙들을 하나하나 기억하는 것 조차 매우 어렵습니다.
+
+그래서 저는 매번 비슷하게 사용하는 패턴을 기본적으로 사용하는 커스텀 린트를 하나 만들고 이걸 가져다 사용하면서 필요시 부분 추가하는 방향으로 사용하고자 목적을 정했고
+
+기본적인 Javascript, Typescript를 기반으로하고 React, React Hooks, Prettier, Stylelint를 설정하기로 하였습니다.
+
+❗️글에는 분량 문제상 대표적으로 index.js, react.js만을 예제로 들고 있습니다. 전체 코드를 보고 싶으신 분들께서는 [Github](https://github.com/fronttigger/eslint-config-fronttigger) 에 정리되어있으니 참고 부탁드립니다.
+
++) 먼저 커스텀 린트를 맛보고 싶으신 분들께서는 [npm](https://www.npmjs.com/package/eslint-config-fronttigger) 에 배포가 되어있습니다.
+
+## 프로젝트 세팅
+
+먼저 프로젝트를 생성하였습니다.
+
+```bash
+npm init -y
+```
+
+기본적인 프로젝트를 생성 후 각각 설정에 사용될 여러가지의 의존성들을 추가하였습니다.
+
+```json
+{
+  "name": "eslint-config-fronttigger",
+  "version": "0.0.1",
+  "description": "fronttigger custom lint",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "@babel/eslint-parser": "^7.16.3",
+    "@stylelint/postcss-css-in-js": "^0.37.2",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-config-standard-jsx": "10.0.0",
+    "eslint-import-resolver-typescript": "2.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "postcss-syntax": "^0.36.2",
+    "prettier": "2.4.1",
+    "stylelint": "14.1.0",
+    "stylelint-config-standard": "^24.0.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-order": "^5.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-react": "^7.16.0",
+    "typescript": "^4.5.2"
+  },
+  "keywords": ["eslint", "eslintconfig"],
+  "author": "fronttigger",
+  "license": "MIT"
+}
+```
+
+여기서 중요한 점은 커스텀 린트를 만들 때 프로젝트 명을 `eslint-config-[커스텀네임]` 형태로 만들어주어야 합니다.
+
+또 이 린트는 내부 개발환경에서 사용하는 것이 아니기 때문에 babel, typescript와 같은 의존성을 제외한 외부에서 사용할 것들은 **전부 dependencies**에 추가해 주어야 외부에서 사용이 가능합니다.
+
+이제 본격적으로 디렉토리 구조를 잡고 하나씩 설정들을 채워보겠습니다.
+
+<img src="/images/2022/02/javascript/lint-directory.png" width="35%" height="auto" />
+
+디렉토리의 구조에 대해 간략하게 정리하면..
+
+- index.js: Javascript, Typescript
+- react.js: Javascript, Typescript, React, React Hooks,
+- prettier.js: Prettier
+- stylelint.js: Stylelint
+- rules: 각 린트별 규칙
+- test: 린트 테스트
+
+위 처럼 구조를 잡았고 이제 하나씩 의도에 맞는 린트 설정을 해주면 됩니다.
+
+먼저 각 모듈의 의도에 맞는 rules를 추가해줍니다. (대표적으로 2가지 예시)
+
+## Rules
+
+### base.js
+
+```javascript
+// https://eslint.org/docs/rules/
+module.exports = {
+  rules: {
+    'no-console': 'warn',
+    'no-empty-function': 'off',
+    'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_+$' }],
+  },
+}
+```
+
+### react.js
+
+```javascript
+// https://github.com/yannickcr/eslint-plugin-react
+module.exports = {
+  rules: {
+    'react/display-name': 'error',
+    'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
+    'react/prop-types': 0,
+    'react/react-in-jsx-scope': 0,
+    'jsx-quotes': 0,
+  },
+}
+```
+
+## 외부에서 사용될 린트 설정
+
+### index.js 린트 설정
+
+이제 본격적으로 만들어낸 rules를 활용하여 직접 사용할 린트를 몇가지 설정을 통해 만들어줍니다.
+
+```javascript
+// https://eslint.org/docs/user-guide/getting-started
+module.exports = {
+  parser: '@babel/eslint-parser', // 린트 파서
+  extends: [
+    // 기본적으로 사용할 규칙 및 플러그인
+    'eslint:recommended',
+    'plugin:import/recommended',
+    'plugin:promise/recommended',
+    'standard',
+    // 만들어낸 rules를 가져와서 적용
+    ...['./rules/base', './rules/import', './rules/prettier'].map(require.resolve),
+  ],
+  env: {
+    // 환경
+    commonjs: true,
+    es6: true,
+    node: true,
+    jest: true,
+  },
+  overrides: [
+    // 특정 glob 패턴에 일치하는 파일에 대한 설정
+    {
+      files: ['*.ts', '*.tsx'], // typescript 대상
+      parser: '@typescript-eslint/parser',
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+        'plugin:import/typescript',
+        ...['./rules/typescript'].map(require.resolve),
+      ],
+      settings: {
+        // typescript의 설정에 대한 규칙에 전체 적용
+        /**
+         * import plugin with Typescript configuration
+         * https://github.com/alexgorbatchev/eslint-import-resolver-typescript#configuration
+         */
+        'import/parsers': {
+          '@typescript-eslint/parser': ['.ts', '.tsx'],
+        },
+      },
+    },
+  ],
+}
+```
+
+뭔가 많은 값들 때문에 복잡하지만 각각의 역할에 대한 개념만 알아둔다면 어렵지 않게 설정이 가능합니다.
+
+- parser: 린트를 파싱할 때 어떤 파서를 적용할 것인지
+- extends: 어떤 규칙 및 플러그인을 사용할 것인지
+- env: 어떤 환경을 반영할 것인지
+- overrides: 특정 glob 패턴에 해당되는 파일을 적용
+- settings: 설정에 명시한 규칙을 린트 전체 적용
+
+### Javascript 테스트
+
+그러면 이제 이렇게 설정한 값이 잘 동작하는지 **테스트**를 해봐야합니다.
+
+test 디렉토리에 .eslintrc 파일과 js 파일을 만들어주었습니다.
+
+#### test/.eslintrc
+
+```javascript
+{
+  "root": true,
+  "extends": "../index.js",
+  "parserOptions": {
+    "requireConfigFile": false
+  }
+}
+```
+
+root를 선언해준 이유는 린트가 현재 기본이 되는 .eslintrc 파일이 루트에 존재하기 때문에 테스트를 원하고싶은 린트 파일로 하기 위해서 입니다. 이를 선언해주지 않으면 린트 설정 파일을 찾아 상위 디렉토리에서 찾아내기 때문입니다.
+
+그러면 잘 적용이 되었는지 확인해보면..
+
+#### test/index.js
+
+![javascript test](/images/2022/02/javascript/javascript-eslint.png)
+
+Javascript에 해당되는 린트 설정이 잘 적용되었네요!
+
+그러면 이제 React의 린트를 설정해보겠습니다.
+
+### react.js 린트 설정
+
+```javascript
+module.exports = {
+  extends: [
+    './index.js',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:jsx-a11y/recommended',
+    'standard-jsx',
+    ...['./rules/react', './rules/react-hooks'].map(require.resolve),
+  ],
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
+  parserOptions: {
+    // 파싱할 때의 옵션
+    ecmaFeatures: { jsx: true },
+    jsx: true,
+    useJSXTextNode: true,
+  },
+}
+```
+
+React에 해당하는 규칙, 플러그인들과 JSX에 대한 옵션들을 parserOptions에 추가해주었고, 이전에 index.js와 크게 다른 부분은 없습니다.
+
+### React 테스트
+
+이제 React도 잘 동작하는지 확인해봐야겠죠?
+
+그러면  개발 환경에서만 사용할 수 있도록 React를 설치해줍니다.
+
+```bash
+npm i -D react
+```
+
+#### test/.eslintrc
+
+```json
+{
+  "root": true,
+  "extends": "../react.js",
+  "parserOptions": {
+    "requireConfigFile": false
+  }
+}
+```
+
+위 세팅을 하고 React 코드를 타닥타닥 작성하면..
+
+#### test/index.js
+
+![react test](/images/2022/02/javascript/react-eslint.png)
+
+React도 잘 적용이 되었네요
+
+자 그러면 이제 외부에서 사용하기 위한 린트 설정은 마무리가 되었습니다.
+그런데 여기서 빼먹으면 안되는 부분이 있는데요
+
+바로 package.json의 **files** 설정입니다.
+
+```json
+{
+  "name": "eslint-config-fronttigger",
+  "version": "0.0.1",
+  "description": "fronttigger custom lint",
+  "main": "index.js",
+  "files": [
+    // 사용할 파일을 명시
+    "rules",
+    "index.js",
+    "prettierrc.js",
+    "react.js",
+    "stylelint.js"
+  ],
+  "scripts": {
+    "lint": "eslint './**/*.{js,ts,tsx}'",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:style": "stylelint './**/*.{js,ts,tsx}'",
+    "lint:style:fix": "stylelint './**/*.{js,ts,tsx}' --fix",
+    "prettier": "prettier '**/*.{json,yaml,md}' --check",
+    "prettier:fix": "prettier '**/*.{json,yaml,md}' --write",
+    "deploy": "npm publish --access=public"
+  },
+  "dependencies": {
+    // ...
+  },
+  "devDependencies": {
+    // ...
+  },
+  "keywords": ["eslint", "eslintconfig"],
+  "author": "fronttigger",
+  "homepage": "https://github.com/fronttigger/eslint-config-fronttigger",
+  "bugs": {
+    "url": "https://github.com/fronttigger/eslint-config-fronttigger/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fronttigger/eslint-config-fronttigger"
+  },
+  "license": "MIT"
+}
+```
+
+files는 프로젝트에 포함되어있는 파일을 배열 형태로, 내부에 문자열 형태로 명시합니다. 이를 통해 이 프로젝트가 어떤 파일들을 사용하는지 인지하고 사용할 수 있습니다.
+
+## npm 배포
+
+이렇게 완성된 프로젝트를 git의 repository에 올린 후 이를 [npm](https://www.npmjs.com/)에 배포해 보겠습니다.
+
+npm 계정을 생성한 뒤 로그인하면 배포가 가능한데 아래 명령어를 통해 배포가 가능합니다.
+
+```bash
+npm publish --access=public
+```
+
+배포가 성공하면 이제 정상적으로 dependency 설치 후 사용이 가능합니다.
+
+```bash
+npm i -D eslint-config-fronttigger
+```
+
+## 배포된 프로젝트 사용
+
+### .eslintrc
+
+```json
+{
+  "root": true,
+  "extends": ["eslint-config-fronttigger/react"]
+}
+```
+
+### .prettierrc
+
+```json
+"eslint-config-fronttigger/prettierrc"
+```
+
+이렇게 직접 커스텀한 린트를 사용하니 확실히 새로운 프로젝트를 시작할 때나, 내가 원하는 설정을 기호에 맞게 첨삭할 수 있으니 정말 편했습니다. 그리고 만드는 과정에서 잘 몰랐던 규칙들도 살펴보며 학습하는 계기가 되어서 귀중한 시간이 되었습니다.
+
+새로운 프로젝트 세팅이 많거나, 여러 프로젝트를 한 번에 동일한 세팅을 하고 싶을 때 정말 유용할 것 같습니다! 👏
+
+분량상 모든 케이스를 글에 담지 못했지만 최상단에 완성한 코드를 첨부해 놓았으니 추가적인 정보가 필요하신 분들은 참고하시면 좋을 것 같습니다 👍
