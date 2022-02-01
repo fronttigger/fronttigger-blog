@@ -1,15 +1,15 @@
 import React from 'react'
-import { getMDXComponent } from 'mdx-bundler/client'
+import dynamic from 'next/dynamic'
 
 import * as styles from '#shared/styles/pages/postDetail/styles.css'
-import MDXComponents from '#components/shared/MDX'
 import PostSEO from '#components/shared/SEO/PostSEO'
 import { Post, Slug } from '#types/post'
 import { getAllPosts, getPost } from '#utils/posts'
 
+const Content = dynamic(() => import('#components/content'))
+
 function PostDetail({ post, code }: { post: Post; code: string }) {
   const { title, date, description, tags, thumbnailImg } = post.frontMatter
-  const Component = React.useMemo(() => getMDXComponent(code), [code])
 
   return (
     <>
@@ -24,7 +24,7 @@ function PostDetail({ post, code }: { post: Post; code: string }) {
       <section className={styles.container}>
         <h1 className={styles.title}>{title}</h1>
         <span className={styles.date}>{date}</span>
-        <Component components={MDXComponents} />
+        <Content code={code} />
       </section>
     </>
   )
