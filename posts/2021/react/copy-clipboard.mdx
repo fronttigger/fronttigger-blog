@@ -1,0 +1,157 @@
+---
+title: 리액트로 클립보드 복사 기능 만들어보기 (feat. Custom Hook) #required
+tags:
+  - typescript
+  - react
+  - navigator
+  - copy
+published: true # required
+date: '2021. 8. 16' # required
+description: '돈복사 하는 코드는 어디 없나 🤔' # required
+thumbnailImg: '/thumbnail/2021/08/react/clipboard.png' # required
+---
+
+## 클립보드
+
+클립보드는 개발자 뿐만 아니라 일반 웹 사용자들도 아주 잘 알고있는 용어일겁니다! 😲
+
+특정 문구를 복사하고 싶은 욕구가 있을 때, 복사할 컨텐츠를 드래그 후 Ctrl + C 하는 방법도 있지만 그걸 더 편리하게 하기 위해 개발자들은 **클립보드 복사** 라는 버튼형태를 만들어 조금 더 유저에게 사용성이 높은 서비스를 제공하고 있습니다.
+
+현재까지도 자주 사용되고 있고 실제로 많은 서비스에 적용이 되어있죠
+
+예전부터 클립보드에 관련된 기능을 개발할 땐 document 객체에 있는 [**execCommand()**](https://developer.mozilla.org/ko/docs/Web/API/Document/execCommand) 라는 함수를 통해 개발하였습니다.
+
+하지만 현재는..
+
+![deprecated](/images/2021/08/react/clipboard-deprecated.png)
+
+보시는 바와 같이 **Deprecated**되어 현재 개발하는 기능에는 당연히 사용하지 말아야할 뿐더러 이전에 개발했던 기능들도 새롭게 대응을 해주어야 합니다. 😨
+
+그러면 새롭게 지원되는 API를 통해 만들어보는 시간을 가져보겠습니다!
+
+❗️ 이 글은 개인적으로 학습한 정보와 지식으로 작성된 글입니다. 혹시 잘못된 부분이 있거나 수정사항이 있다면 말씀해주시면 반영하겠습니다. 🙏
+
+## Clipboard API
+
+이전에는 execCommand("copy")를 통해 개발하였다면, 현재는 정식으로 클립보드 API를 지원하는 전역 [navigator](https://developer.mozilla.org/en-US/docs/Web/API/Navigator) 객체에서
+
+**[clipboard API](https://developer.mozilla.org/ko/docs/Web/API/Clipboard_API)** 를 바로 사용할 수 있습니다.
+
+clipboard API의 메소드를 보게되면 [writeText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText)라는 메소드가 있는데요, 요놈이 바로 클립보드 복사를 하기위한 친구입니다.
+
+writeText 메소드는 **Promise**를 반환해주고 있으며, **IE**에서는 아예 지원이 안되고 있으니 꼭 인지해야합니다. 🤔
+
+이제 본격적으로 코드를 통해 복사 기능을 만들어보겠습니다.
+
+```javascript
+import React from 'react'
+import './App.css'
+
+function App() {
+  const handleCopyClipBoard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+
+      alert('복사 성공!')
+    } catch (error) {
+      alert('복사 실패!')
+    }
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => handleCopyClipBoard('복사된 텍스트')}>복사!!</button>
+    </div>
+  )
+}
+
+export default App
+```
+
+자 위에는 버튼을 클릭시 이벤트 핸들러가 동작하는 코드입니다.
+
+아까 writeText는 **Promise**를 반환한다고 말씀드렸었죠?
+
+이제 이걸 화면에서 눌러보면..
+
+![copy success](/images/2021/08/react/copy-success.png)
+
+정상적으로 작동이 됩니다.
+
+그리고 실제로 **ctrl + v**를 누르면 "복사된 텍스트" 라는 텍스트가 복사가 되어있습니다.
+
+서론은 뭔가 굉장히 긴 느낌이었는데 금방 끝나버렸죠? 🤣
+
+하지만 클립보드를 복사 했을 때 **복사 성공 여부**를 알고 싶다거나 혹은 클립보드 복사 기능이 여러군데서 사용될 여지가 있다면,
+
+재활용을 감안한 커스텀 훅을 하나 만들어서 관리해야겠다는 생각이 문득 듭니다.
+
+그래서 일단 저 요구사항 2개를 가지고 커스텀훅을 만들어보겠습니다.
+
+## useCopyClipBoard
+
+```typescript
+import { useState } from 'react'
+
+type onCopyFn = (text: string) => Promise<boolean>
+
+function useCopyClipBoard(): [boolean, onCopyFn] {
+  const [isCopy, setIsCopy] = useState<boolean>(false)
+
+  const onCopy: onCopyFn = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setIsCopy(true)
+
+      return true
+    } catch (error) {
+      console.error(error)
+      setIsCopy(false)
+
+      return false
+    }
+  }
+
+  return [isCopy, onCopy]
+}
+
+export default useCopyClipBoard
+```
+
+**isCopy** 상태를 통해 복사 여부를 알 수 있도록 만들었고, **onCopy** 이벤트를 통해 성공 및 실패에 대한 처리를 하였습니다.
+
+간단하죠?
+
+실제 사용되는 코드를 보겠습니다.
+
+```javascript
+import React from 'react'
+import './App.css'
+
+import useCopyClipBoard from './useCopyClipBoard'
+
+function App() {
+  const [isCopy, onCopy] = useCopyClipBoard()
+
+  const handleCopyClipBoard = (text: string) => {
+    onCopy(text)
+  }
+
+  return (
+    <div className="App">
+      <button onClick={() => handleCopyClipBoard('복사된 텍스트')}>복사!!</button>
+      {isCopy && <span>복사 완료!!</span>}
+    </div>
+  )
+}
+
+export default App
+```
+
+아까와 크게 다른 부분은 isCopy를 통해 **완료 여부**를 알 수 있고, 그냥 만든 훅을 **가져와서 사용**만 하면 된다는 점입니다.
+
+자 그럼 결과는 어떻게 나올까요?
+
+![copy success to hooks](/images/2021/08/react/copy-hook-success.gif)
+
+아주 정상적으로 동작하는군요! 🎉🎉🎉
