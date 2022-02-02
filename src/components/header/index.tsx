@@ -7,6 +7,7 @@ import * as styles from './styles.css'
 import { CustomThemeType } from '#pages/_app'
 import SunIcon from '#components/icons/sun'
 import MoonIcon from '#components/icons/moon'
+import ProgressBar from '#components/progressbar'
 
 interface HeaderProps {
   theme: CustomThemeType
@@ -40,6 +41,7 @@ export default function Header({ theme, onChangeTheme }: HeaderProps) {
           </ul>
         </div>
       </nav>
+      <ProgressBar />
     </header>
   )
 }
