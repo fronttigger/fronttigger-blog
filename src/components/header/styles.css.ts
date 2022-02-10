@@ -47,7 +47,6 @@ export const title = style([
   }),
   {
     color: theme.colors.domain.header.color,
-    fontFamily: theme.font.header,
     fontSize: theme.fontSize.large,
     letterSpacing: theme.letterSpacing.medium,
   },
@@ -61,7 +60,6 @@ export const menuContainer = style({
 export const menuTitle = style([
   {
     margin: 'auto',
-    fontFamily: theme.font.header,
     letterSpacing: theme.letterSpacing.medium,
     marginRight: theme.space.large,
     ':last-child': {
