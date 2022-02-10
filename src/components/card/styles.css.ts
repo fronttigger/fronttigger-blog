@@ -1,6 +1,6 @@
-import { style } from '@vanilla-extract/css'
+import { globalStyle, style } from '@vanilla-extract/css'
 
-import { theme } from '#shared/theme.css'
+import { colorTheme, theme } from '#shared/theme.css'
 import { oneLineEllipsis, twoLineEllipsis } from '#shared/mixin.css'
 import { sprinkles } from '#components/shared/sprinkles.css'
 
@@ -18,6 +18,8 @@ export const imageContainer = style([
     minWidth: '192px',
     height: '144px',
     marginRight: theme.space.xlarge,
+    borderRadius: theme.borderRadius.medium,
+    overflow: 'hidden',
   },
 ])
 
@@ -86,3 +88,8 @@ export const date = style([
     color: theme.colors.domain.card.date,
   },
 ])
+
+globalStyle(`${container}:hover ${title}`, {
+  color: colorTheme.brightblue,
+  transition: '0.15s ease-in-out',
+})
