@@ -7,7 +7,7 @@
 - Next.js
 - Recoil
 - vanilla-extract
-- mdx-bunlder
+- mdx-bundler
 - vercel
 
 ## Frontmatter
