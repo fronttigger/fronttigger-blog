@@ -1,0 +1,23 @@
+---
+title: 블로그에 다크모드 끼얹어보자 (feat. vanilla-extract css) #required
+tags:
+  - vanilla-extract
+  - darkmode
+  - CSS
+  - Next.js
+published: false # required
+date: '2022. 2. 16' # required
+description: '참 신박하네' # required
+thumbnailImg: '/thumbnail/2022/02/css/vanill-extract-darkmode.png' # required
+---
+
+## vanilla-extract..?
+
+2022년 새해 사이드프로젝트로 개인 블로그를 만들게 되면서 CSS 라이브러리를 어떤걸 사용해야할지 고민을 했다. 🤔  
+기존에 계속 사용하고 있던 styled-componenets를 이용할지, 아니면 새로운걸 사용해볼지 갈팡질팡 하던 도중 우연치 않게 2021년도의 CSS들을 종합해 통계낸 [아티클](https://2021.stateofcss.com/en-US/technologies/css-in-js)을 보게 되었는데 여기서 2021년에 혜성같이 등장한 [vanilla-extract](https://vanilla-extract.style/) 라는 친구가 눈에 들어왔다.
+
+다른건 둘째치고 **만족도**가 높다는 통계를 보고 혹해서 공식 문서를 살펴보는 도중 현재 개발하고 있는 Next.js 환경과 TS 환경에서 굉장히 셋업도 편리하고 호환이 좋아보였고, 타입스크립트를 기본적으로 지원하고 있으며 이렇게 작성된 코드는 **Zero-Runtime**으로 빌드 타임시 스타일을 만들어내는 방식이었다. (부분적으로 런타임에서 동작하게 하는 방법도 있다.)
+
+즉, `.ts` 확장자를 `.scss` 와 같이 전처리기의 역할처럼 사용한다는 것이다.
+
+이를 활용해 다크모드를 구현해본 경험을 공유하려 한다.
