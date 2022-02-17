@@ -8,6 +8,7 @@ import { CustomThemeType } from '#pages/_app'
 import SunIcon from '#components/icons/sun'
 import MoonIcon from '#components/icons/moon'
 import ProgressBar from '#components/progressbar'
+import { LIGHT_MODE } from '#constants'
 
 interface HeaderProps {
   theme: CustomThemeType
@@ -36,7 +37,7 @@ export default function Header({ theme, onChangeTheme }: HeaderProps) {
               </li>
             ))}
             <li onClick={onChangeTheme} aria-hidden="true">
-              {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+              {theme === LIGHT_MODE ? <SunIcon /> : <MoonIcon />}
             </li>
           </ul>
         </div>
