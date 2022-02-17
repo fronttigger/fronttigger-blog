@@ -1,23 +1,370 @@
 ---
-title: 블로그에 다크모드 끼얹어보자 (feat. vanilla-extract css) #required
+title: 블로그에 다크모드를 끼얹어보자 (feat. vanilla-extract css) #required
 tags:
   - vanilla-extract
   - darkmode
   - CSS
   - Next.js
-published: false # required
-date: '2022. 2. 16' # required
+published: true # required
+date: '2022. 2. 17' # required
 description: '참 신박하네' # required
 thumbnailImg: '/thumbnail/2022/02/css/vanill-extract-darkmode.png' # required
 ---
 
 ## vanilla-extract..?
 
-2022년 새해 사이드프로젝트로 개인 블로그를 만들게 되면서 CSS 라이브러리를 어떤걸 사용해야할지 고민을 했다. 🤔  
+2022년 새해 사이드프로젝트로 개인 블로그를 만들게 되면서 CSS 라이브러리를 어떤걸 사용해야할지 고민을 했다. 🤔
+
 기존에 계속 사용하고 있던 styled-componenets를 이용할지, 아니면 새로운걸 사용해볼지 갈팡질팡 하던 도중 우연치 않게 2021년도의 CSS들을 종합해 통계낸 [아티클](https://2021.stateofcss.com/en-US/technologies/css-in-js)을 보게 되었는데 여기서 2021년에 혜성같이 등장한 [vanilla-extract](https://vanilla-extract.style/) 라는 친구가 눈에 들어왔다.
 
 다른건 둘째치고 **만족도**가 높다는 통계를 보고 혹해서 공식 문서를 살펴보는 도중 현재 개발하고 있는 Next.js 환경과 TS 환경에서 굉장히 셋업도 편리하고 호환이 좋아보였고, 타입스크립트를 기본적으로 지원하고 있으며 이렇게 작성된 코드는 **Zero-Runtime**으로 빌드 타임시 스타일을 만들어내는 방식이었다. (부분적으로 런타임에서 동작하게 하는 방법도 있다.)
 
-즉, `.ts` 확장자를 `.scss` 와 같이 전처리기의 역할처럼 사용한다는 것이다.
+또한 파일은 `*.css.ts` 형태로 만들어서 작성하는데,
+이는 `.ts` 확장자를 `.scss` 와 같이 전처리기의 역할처럼 사용한다는 것이다.
 
-이를 활용해 다크모드를 구현해본 경험을 공유하려 한다.
+이러한 장점들을 보니 갑자기 엄청난 끌림에 당겨 vanilla-extract를 사용해보기로 결정하고 다크모드를 지원하기 위한 여러가지 API를 살펴보던 중..
+[createThemeContract](https://vanilla-extract.style/documentation/styling-api/#createthemecontract), [createTheme](https://vanilla-extract.style/documentation/styling-api/#createtheme), [style](https://vanilla-extract.style/documentation/styling-api/#style) 이 세 가지 API를 활용해 개발할 수 있을 것 같았다.
+
+이를 활용해 다크모드를 구현해본 경험을 공유하려 한다. 📖
+
+## createThemeContract
+
+Contract가 **계약**이라는 뜻을 가지고 있는데, 뜻처럼 이 함수는 테마를 만들기 위한 하나의 **프레임**과 같은 역할을 한다.
+
+`createThemeContract`를 사용하여 만들어낸 객체는 자체적으로 타입을 만들어주기 때문에 만들어낸 틀 내에서 테마가 이루어져야 하기 때문에 이를 활용하여 라이트모드, 다크모드 등 정해진 테마를 만들기 적합하다고 판단되었다.
+
+어떻게 구성되는지 코드로 살펴보자
+
+```javascript
+// theme.css.ts
+import { createThemeContract } from '@vanilla-extract/css'
+
+const colors = createThemeContract({
+  backgroundColor: null,
+  title: null,
+  domain: {
+    header: {
+      color: null,
+      backgroundColor: null,
+    },
+    footer: {
+      backgroundColor: null,
+      contactColor: null,
+      color: null,
+    },
+    card: {
+      title: null,
+      description: null,
+      date: null,
+    },
+    detail: {
+      title: null,
+      date: null,
+    },
+    icon: {
+      color: null,
+      backgroundColor: null,
+    },
+  },
+  post: {
+    a: null,
+    blockquote: {
+      color: null,
+      borderLeft: null,
+    },
+    code: {
+      color: null,
+      backgoundColor: null,
+    },
+    ol: null,
+    ul: {
+      color: null,
+      backgroundColor: null,
+    },
+    p: null,
+    strong: null,
+  },
+  // ....
+})
+
+export const theme = colors
+```
+
+함수 인자에 객체 형태로 각각 도메인에 맞는 프로퍼티를 주었다.
+
+이렇게 한 이유는 블로그로서 엄청 큰 규모의 스타일 리소스가 필요하지 않다고 생각했고, 정해진 도메인에 따라 스타일을 주는 것이 시간이 지나더라도 이해하고 유지보수하기 더 편할 것이라 생각했다.
+
+도메인별로 프로퍼티를 주었는데 값은 `null`로 초기화를 시켜주었는데, 이는 아까의 개념에서 보았듯이 **프레임**을 만드는 역할을 하기 때문이다.
+
+이렇게 만들어낸 공통 프레임을 **colors** 라는 변수에 담았고 이를 활용하여 특정 테마에 대한 스타일을 만들 때 사용하면 된다.
+
+### createTheme
+
+자 이제는 만들어낸 틀을 활용하여 기본 모드(라이트)와 다크모드를 구현할 차례가 왔다.
+
+위에서 만든 colors 변수를 createTheme 함수의 첫 번째 인자로 넣고, 틀에 해당하는 스타일을 두 번째 인자에 객체형태로 넣으면 하나의 테마가 완성된다.
+
+### lightTheme
+
+```javascript
+// theme.css.ts
+import { createTheme, createThemeContract } from '@vanilla-extract/css'
+
+export const lightTheme = createTheme(colors, {
+  backgroundColor: colorTheme.white,
+  title: colorTheme.darkblue,
+  domain: {
+    header: {
+      color: colorTheme.black,
+      backgroundColor: colorTheme.white,
+    },
+    footer: {
+      backgroundColor: colorTheme.whiteblue,
+      contactColor: colorTheme.graywhite,
+      color: colorTheme.bluegreen,
+    },
+    card: {
+      title: colorTheme.black,
+      description: colorTheme.darkblue,
+      date: colorTheme.gray,
+    },
+    detail: {
+      title: colorTheme.black,
+      date: colorTheme.gray,
+    },
+    icon: {
+      color: colorTheme.skyblue,
+      backgroundColor: colorTheme.black,
+    },
+  },
+  post: {
+    a: colorTheme.lightblue,
+    blockquote: {
+      color: colorTheme.bluegray,
+      borderLeft: colorTheme.lightgray,
+    },
+    code: {
+      color: colorTheme.pink,
+      backgoundColor: colorTheme.lightgray,
+    },
+    ol: colorTheme.bluegray,
+    ul: {
+      color: colorTheme.bluegray,
+      backgroundColor: colorTheme.bluegray,
+    },
+    p: colorTheme.bluegray,
+    strong: colorTheme.darkblue,
+  },
+  // ...
+})
+```
+
+### darkTheme
+
+```javascript
+// theme.css.ts
+import { createTheme, createThemeContract } from '@vanilla-extract/css'
+
+export const darkTheme = createTheme(colors, {
+  backgroundColor: colorTheme.mageticdark,
+  title: colorTheme.white,
+  domain: {
+    header: {
+      color: colorTheme.white,
+      backgroundColor: colorTheme.mageticdark,
+    },
+    footer: {
+      backgroundColor: colorTheme.mageticdark,
+      contactColor: colorTheme.bluegray,
+      color: colorTheme.lightwhite,
+    },
+    card: {
+      title: colorTheme.lightwhite,
+      description: colorTheme.darkwhite,
+      date: colorTheme.gray,
+    },
+    detail: {
+      title: colorTheme.white,
+      date: colorTheme.gray,
+    },
+    icon: {
+      color: colorTheme.skyblue,
+      backgroundColor: colorTheme.graywhite,
+    },
+  },
+  post: {
+    a: colorTheme.lightblue,
+    blockquote: {
+      color: colorTheme.bluegray,
+      borderLeft: colorTheme.lightgray,
+    },
+    code: {
+      color: colorTheme.pink,
+      backgoundColor: colorTheme.darkgray,
+    },
+    ol: colorTheme.brightgray,
+    ul: {
+      color: colorTheme.brightgray,
+      backgroundColor: colorTheme.brightgray,
+    },
+    p: colorTheme.brightgray,
+    strong: colorTheme.darkblue,
+  },
+  // ...
+})
+```
+
+위 두개의 코드를 보면 틀은 같지만 도메인별로 다른 스타일을 가지고 있다.
+
+이렇게 만들어낸 두개의 테마를 이제 적용할 차례만 남았다.
+
+## style
+
+style 함수는 말 그대로 스타일을 정의하는 함수인데, 여기서 만들어낸 style은 해당하는 Element의 **className**에 선언된다.
+
+```javascript
+// styles.css.ts
+import { style } from '@vanilla-extract/css'
+
+import { theme } from '#shared/theme.css'
+
+export const menuName = style({
+  color: theme.colors.domain.header.color,
+})
+
+// ...
+```
+
+만들어낸 틀을 가져와서 선언한 도메인에 해당되는 스타일을 넣어주면 끝!
+
+아까 `createThemeContract`를 활용하여 스타일에 대한 프레임을 만들어 놓았는데 그 프레임을 style에 선언하였고
+추후 그 틀로 만들어낸 테마를 **className**에 선언해주면 이미 빌드 타임에 만들어진 css가 적용된다.
+
+### Header.tsx
+
+```javascript
+// Header.tsx
+import Image from 'next/image'
+import Link from 'next/link'
+import config from 'config'
+
+import * as styles from './styles.css'
+// ..
+
+interface HeaderProps {
+  theme: CustomThemeType
+  onChangeTheme: () => void
+}
+
+export default function Header({ theme, onChangeTheme }: HeaderProps) {
+  return (
+    // ...
+    <ul className={styles.menuContainer}>
+      {config.menus.map(({ id, menu, link }) => (
+        <li key={id} className={styles.menuTitle}>
+          <Link href={link}>
+            <span className={styles.menuName}>{menu}</span>
+          </Link>
+        </li>
+      ))}
+      <li onClick={onChangeTheme} aria-hidden="true">
+        {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+      </li>
+    </ul>
+    // ...
+  )
+}
+```
+
+헤더 컴포넌트에 테마를 변경할 props들과 만들었던 스타일들을 적용했다.
+
+## 다크모드 적용
+
+이제 마지막 단계인 토글을 통한 다크모드 적용만 남았다.
+
+현재 블로그는 Next.js로 개발하고 있는데 컴포넌트 최상단에 css를 적용시켜야 하기 때문에 `_app.tsx`에서 적용하였다.
+
+```javascript
+import { useMemo, useState, useEffect } from 'react'
+import { AppProps } from 'next/app'
+import Head from 'next/head'
+import { RecoilRoot } from 'recoil'
+
+import '#shared/globalStyles.css.ts'
+import * as styles from '#shared/styles/pages/posts/styles.css'
+import Header from '#components/header'
+import Layout from '#components/layout'
+import Footer from '#components/footer'
+import { lightTheme, darkTheme } from '#shared/theme.css'
+import { BLOG_THEME_NAME } from '#constants'
+
+export type CustomThemeType = 'light' | 'dark'
+
+function App({ Component, pageProps }: AppProps) {
+  const [theme, setTheme] = useState<CustomThemeType>('light')
+  const customTheme = useMemo(() => (theme === 'dark' ? darkTheme : lightTheme), [theme])
+
+  const handleThemeChange = (): void => {
+    if (theme === 'light') {
+      setTheme('dark')
+      localStorage.setItem(BLOG_THEME_NAME, 'dark')
+    } else {
+      setTheme('light')
+      localStorage.setItem(BLOG_THEME_NAME, 'light')
+    }
+  }
+
+  useEffect((): void => {
+    if (!localStorage.getItem(BLOG_THEME_NAME)) {
+      localStorage.setItem(BLOG_THEME_NAME, 'light')
+    }
+
+    const currentTheme = (localStorage.getItem(BLOG_THEME_NAME) as CustomThemeType) || 'light'
+
+    setTheme(currentTheme)
+  }, [])
+
+  return (
+    <RecoilRoot>
+      <div className={[styles.bodyContainer, customTheme].join(' ')}>
+        <Head>
+          <meta content="width=device-width, initial-scale=1" name="viewport" />
+        </Head>
+        <Header theme={theme} onChangeTheme={handleThemeChange} />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+        <Footer />
+      </div>
+    </RecoilRoot>
+  )
+}
+
+export default App
+```
+
+프레임을 통해서 만들었던 두 가지 테마를 가지고 LocalStorage 판별과 토글 이벤트를 통해서 처리하고 있다.
+
+**customTheme**을 만들어 theme이 변경될 때 테마를 변경하여 적용하였고,
+이를 최상단 div에 선언하여 자식 컴포넌트에서 테마에 해당되는 스타일을 사용하고 있는 경우 반영되도록 하였다.
+
+이렇게 선언하면 과연 최종적으로는 어떻게 css가 만들어져 있을까?
+
+![style tag](/images/2022/02/css/style-tag.png)
+
+![header style tag](/images/2022/02/css/style-tag-header.png)
+
+놀랍지 않은가!! 🤭
+
+테마별로 이미 css는 만들어져있고, 그 스타일을 적용하고 있는 모습이다.
+
+지금 만들어낸 css 뿐만 아니라 모든 스타일이 빌드 타임에 만들어지기 때문에 빌드 후 `head` 태그 내부의 `style` 태그들을 보면 선언한 스타일들을 확인 수 있다.
+
+이제 이렇게 만들어진 다크모드를 살펴보면..
+
+![chage theme](/images/2022/02/css/darkmodegif.gif)
+
+만들어낸 테마를 잘 적용시키고 있다! 🎉🎉
+
+이런 커스텀 테마를 잘 만들 수 있게끔 좋은 API들을 제공하고 있어서 구현하기 편했다.
+현재는 LocalStorage만을 이용하여 다크모드를 판별하고 있지만 추후 CSS 속성인 `(prefers-color-scheme: dark)`를 이용해 추가로 판별 해보아야겠다.
