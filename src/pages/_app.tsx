@@ -3,6 +3,7 @@ import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/dist/client/router'
 import { RecoilRoot } from 'recoil'
+import { getPrefersMode } from '@copiest/utils'
 
 import '#shared/globalStyles.css.ts'
 import * as styles from '#shared/styles/pages/posts/styles.css'
@@ -10,36 +11,37 @@ import Header from '#components/header'
 import Layout from '#components/layout'
 import Footer from '#components/footer'
 import { lightTheme, darkTheme } from '#shared/theme.css'
-import { BLOG_THEME_NAME } from '#constants'
+import { BLOG_THEME_KEY, LIGHT_MODE, DARK_MODE } from '#constants'
 
-export type CustomThemeType = 'light' | 'dark'
+export type CustomThemeType = 'LIGHT' | 'DARK'
 
 function App({ Component, pageProps }: AppProps) {
   const Router = useRouter()
-  const [theme, setTheme] = useState<CustomThemeType>('light')
-  const customTheme = useMemo(() => (theme === 'dark' ? darkTheme : lightTheme), [theme])
+  const [theme, setTheme] = useState<CustomThemeType>(LIGHT_MODE)
+  const customTheme = useMemo(() => (theme === DARK_MODE ? darkTheme : lightTheme), [theme])
 
   const handleThemeChange = (): void => {
-    if (theme === 'light') {
-      setTheme('dark')
-      localStorage.setItem(BLOG_THEME_NAME, 'dark')
+    if (theme === LIGHT_MODE) {
+      setTheme(DARK_MODE)
+      localStorage.setItem(BLOG_THEME_KEY, DARK_MODE)
     } else {
-      setTheme('light')
-      localStorage.setItem(BLOG_THEME_NAME, 'light')
+      setTheme(LIGHT_MODE)
+      localStorage.setItem(BLOG_THEME_KEY, LIGHT_MODE)
     }
   }
 
   useEffect((): void => {
-    if (!localStorage.getItem(BLOG_THEME_NAME)) {
-      localStorage.setItem(BLOG_THEME_NAME, 'light')
+    if (localStorage.getItem(BLOG_THEME_KEY)) {
+      setTheme(localStorage.getItem(BLOG_THEME_KEY) as CustomThemeType)
+    } else {
+      if (getPrefersMode() === LIGHT_MODE) {
+        localStorage.setItem(BLOG_THEME_KEY, LIGHT_MODE)
+        setTheme(LIGHT_MODE)
+      } else {
+        localStorage.setItem(BLOG_THEME_KEY, DARK_MODE)
+        setTheme(DARK_MODE)
+      }
     }
-
-    const currentTheme =
-      typeof window !== undefined
-        ? (localStorage.getItem(BLOG_THEME_NAME) as CustomThemeType)
-        : 'light'
-
-    setTheme(currentTheme)
   }, [])
 
   useEffect((): void => {
