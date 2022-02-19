@@ -9,64 +9,64 @@ tags:
   - 상태관리
 published: true # required
 date: '2022. 1. 9' # required
-description: '내 상태관리보다 리액트의 상태관리가 더 중요해..!' # required
+description: '리액트 상태관리 말고 내 상태관리는 언제하나' # required
 thumbnailImg: '/thumbnail/2022/01/react/context-reducer.png' # required
 ---
 
-`리액트 개발`을 할 때 상태관리 라이브러리를 사용하지 않으면 무수히 많은 props들과 싸우며 개발을 하게 됩니다.. 😨
+## 상태관리?
 
-그러한 문제를 해결하기 위해 많은 라이브러리(Redux, Recoil, Mobx 등)들이 등장했습니다.
+리액트 개발을 할 때 상태관리 라이브러리를 사용하지 않으면 무수히 많은 props들과 싸우며 개발을 하게 된다.. 😨
 
-그래서 이번 기회에 간단한 Todo를 구현하며 Context API와 useReducer 조합을 통해 번거로운 prop drilling 없이 상태관리를 할 수 있는 방법에 대해 알아보겠습니다.
+그러한 문제를 해결하기 위해 많은 라이브러리(Redux, Recoil, Mobx 등)들이 등장했다.
 
-❗️ 이 글은 개인적으로 학습한 정보와 지식으로 작성된 글입니다. 혹시 잘못된 부분이 있거나 수정사항이 있다면 말씀해주시면 반영하겠습니다. 🙏
+위와 같은 상태 관리 라이브러리를 사용하지 않고 이번 기회에 간단한 Todo를 구현하며 `Context API`와 `useReducer` 조합을 통해 번거로운 **prop drilling** 없이 상태관리를 할 수 있는 방법에 대해 알아보자
 
 ## Context API
 
-먼저 [Context API](https://ko.reactjs.org/docs/context.html) 의 개념에 대해 알아보겠습니다!
+먼저 [Context API](https://ko.reactjs.org/docs/context.html) 의 개념에 대해 알아보자!
 
-일단, 결론부터 말씀드리면 Context API는 **상태관리**를 하는 목적이 아닙니다. 🙅🏻
+일단, 결론부터 말하자면 Context API는 **상태관리**를 하는 목적이 아니었다. 🙅🏻
 
-Context API가 Redux와 같은 상태관리 라이브러리 대용으로 사용하는 경우와 예시의 한 경우로 자리매김 하여 상태관리의 역할을 하는 API로 이해를 하고 있을텐데요 (저도 그랬습니다. 😅)
+Context API가 Redux와 같은 상태관리 라이브러리 대용으로 사용하는 경우와 예시의 한 경우로 자리매김 하여 상태관리의 역할을 하는 API로 이해를 하고 있을텐데 (나 또한 그랬다.. 😅)
 
-리액트 공식문서에 따르면 생각과는 다르게 전혀 다른 말이 적혀있습니다.
+리액트 공식문서에 따르면 생각과는 다르게 전혀 다른 말이 적혀있다.
 
 ![Context API DOCS](/images/2022/01/react/contextreact.png)
 
-위 말에서 그 어디에도 **상태관리**라는 말은 찾아볼 수가 없죠
+위 말에서 그 어디에도 **상태관리**라는 말은 찾아볼 수가 없다.
 
-그리고 말하고자 하는 결론은 **일일이 props를 넘겨주지 않고 곧바로 제공**하는 역할을 하는 친구라고 볼 수 있습니다.
+여기서 말하고자 하는 결론은 **일일이 props를 넘겨주지 않고 곧바로 제공**하는 역할을 하는 친구라고 볼 수 있다.
 
-즉, 굳이 상태가 아니더라도 데이터(값)라면 무엇이는 props를 넘기지 않고도 제공한다는 것이죠
+즉, 굳이 상태가 아니더라도 데이터(값)라면 무엇이는 props를 넘기지 않고도 제공한다는 것이다.
 
-리액트 개발을 할 때 Context API를 상태관리의 명목으로 많이 사용되고 있기 때문에 이런 오해에 의한 워딩이 생겨나 혼동을 일으키는 것 같습니다. 🤔
+리액트 개발을 할 때 Context API를 상태관리의 명목으로 많이 사용되고 있기 때문에 이런 오해에 의한 워딩이 생겨나 혼동을 일으키는 것 같다.. 🤔
 
-그렇다면 Context API로 상태관리를 한다는건 무슨 의미냐?!
+그렇다면 Context API로 상태관리를 한다는건 무슨 의미일까?!
 
-리액트에서 제공하는 훅인 [useState](https://ko.reactjs.org/docs/hooks-reference.html#usestate), [useReducer](https://ko.reactjs.org/docs/hooks-reference.html#usereducer)를 통해 직접 상태관리를 하는 **상태**과 **함수**들을 Context API로 prop drilling 없이 전달할 때 상태관리의 **바지사장**이라는 자리를 수여하게 됩니다.
+리액트에서 제공하는 훅인 [useState](https://ko.reactjs.org/docs/hooks-reference.html#usestate), [useReducer](https://ko.reactjs.org/docs/hooks-reference.html#usereducer)를 통해 직접 상태관리를 하는 **상태**과 **함수**들을 Context API로 prop drilling 없이 전달할 때 상태관리의 **바지사장**이라는 자리를 수여하게 된다.
 
-그 이유는 개념적으로는 앞서 말씀 드렸지만 상태관리의 역할이 아니나, useState와 useReducer의 상태와 함수들을 처리하니 강제로 상태관리의 역할을 하는 자리에 앉혀놓았다고 생각하면 됩니다.
+그 이유는 개념적으로는 상태관리의 역할이 아니나, useState와 useReducer의 상태와 함수들을 처리하니 강제로 상태관리의 역할을 하는 자리에 앉혀놓은 느낌이라고 볼 수 있다.
 
-진짜 상태관리는 현재 예제 기준으로는 useReducer가 하고 있는 셈이죠
+진짜 상태관리는 현재 예제 기준으로는 useReducer가 하고 있는 셈이다.
 
-코드를 보면서 어떻게 활용되는지 살펴보겠습니다.
+코드를 보면서 어떻게 활용되는지 살펴보자!
 
 ```javascript
 import React, { useReducer, createContext } from 'react'
 
 interface DefaultValueState {
-  id: number;
-  text: string;
+  id: number
+  text: string
 }
 
 const defaultValue: DefaultValueState[] = []
 
 type ActionType =
   | {
-      type: 'ADD_TODO',
-      text: string,
+      type: 'ADD_TODO'
+      text: string
     }
-  | { type: 'DELETE_TODO', id: number }
+  | { type: 'DELETE_TODO'; id: number }
 
 function reducer(state: DefaultValueState[], action: ActionType): DefaultValueState[] {
   switch (action.type) {
@@ -83,19 +83,16 @@ function reducer(state: DefaultValueState[], action: ActionType): DefaultValueSt
 }
 
 interface ContextType {
-  todos: DefaultValueState[];
-  addTodo: (text: string) => void;
-  deleteTodo: (todoId: number) => void;
+  todos: DefaultValueState[]
+  addTodo: (text: string) => void
+  deleteTodo: (todoId: number) => void
 }
 
-export const TodoContext =
-  createContext <
-  ContextType >
-  {
-    todos: defaultValue,
-    addTodo: () => {},
-    deleteTodo: () => {},
-  }
+export const TodoContext = createContext<ContextType>({
+  todos: defaultValue,
+  addTodo: () => {},
+  deleteTodo: () => {},
+})
 
 function TodoProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, defaultValue)
@@ -124,13 +121,13 @@ function TodoProvider({ children }: { children: React.ReactNode }) {
 export default TodoProvider
 ```
 
-컨텍스트를 생성할 때 가장 기본값을 넣게 되는데, 이때 useReducer에서 관리할 **상태**와 **함수**를 가지고 생성하게 됩니다.
+컨텍스트를 생성할 때 가장 기본값을 넣게 되는데, 이때 useReducer에서 관리할 **상태**와 **함수**를 가지고 생성하게 된다.
 
-그리고 이렇게 생성된 컨텍스트를 useReducer에서 본격적으로 상태를 핸들링 하게 되고, 그 함수와 갱신될 상태를 **children**에게 넘겨주게 됩니다.
+그리고 이렇게 생성된 컨텍스트를 useReducer에서 본격적으로 상태를 핸들링 하게 되고, 그 함수와 갱신될 상태를 **children**에게 넘겨주게 된다.
 
-이렇게 되면 상태관리는 TodoProvider 컴포넌트에서 진행이 되지만, 이는 Context API를 통해 전역으로 drilling 해줄 수 있게 되는 것이죠
+이렇게 되면 상태관리는 TodoProvider 컴포넌트에서 진행이 되지만, 이는 Context API를 통해 전역으로 drilling 해줄 수 있게 되는 것이다.
 
-그렇다면 이걸 사용하는 컴포넌트의 모습은 어떨까요?
+그렇다면 이걸 사용하는 컴포넌트의 모습은 어떨까?
 
 ### App.tsx
 
@@ -155,7 +152,7 @@ ReactDOM.render(
 reportWebVitals()
 ```
 
-Todo를 그려낼 컴포넌트에 대해서 상위 컴포넌트로 감싸줍니다.
+Todo를 그려낼 컴포넌트에 대해서 상위 컴포넌트로 감싸준다.
 
 ### Input.tsx
 
@@ -165,7 +162,7 @@ import { TodoContext } from './provider'
 
 function Input() {
   const { addTodo } = useContext(TodoContext)
-  const [value, setValue] = useState < string > ''
+  const [value, setValue] = useState('')
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(e.target.value)
@@ -200,9 +197,9 @@ function Input() {
 export default Input
 ```
 
-그리고 자식 컴포넌트에선 **useContext** hook을 통해 TodoProvider에서 drilling한 props를 바로 접근해서 사용이 가능하게 됩니다.
+그리고 자식 컴포넌트에선 **useContext** hook을 통해 TodoProvider에서 drilling한 props를 바로 접근해서 사용이 가능하게 된다.
 
-**Input 컴포넌트**에서는 등록을 해주는 역할이 있기 때문에 reducer 함수에서 **ADD_TODO** 타입인 dispatch 함수를 사용했습니다.
+**Input 컴포넌트**에서는 등록을 해주는 역할이 있기 때문에 reducer 함수에서 **ADD_TODO** 타입인 dispatch 함수를 사용했다.
 
 ###  Todos.tsx
 
@@ -227,9 +224,9 @@ function Todo() {
 export default Todo
 ```
 
-이제 추가한 Todo를 그려내야 할 때 todos 라는 명으로 상태를 주었으니 해당 상태를 가져와 렌더링을 시켜줍니다.
+이제 추가한 Todo를 그려내야 할 때 todos 라는 명으로 상태를 주었으니 해당 상태를 가져와 렌더링을 시켜주었다.
 
-위와 마찬가지로 **DELETE_TODO**의 dispatch도 마찬가지겠죠?
+위와 마찬가지로 **DELETE_TODO**의 dispatch도 처리해주었다.
 
 ### Item.tsx
 
@@ -258,4 +255,6 @@ function Item({ id, text }: { id: number, text: string }) {
 export default Item
 ```
 
-이처럼 Context API와 useReducer 조합을 통해 props drilling 없이 상태관리 하는 법을 학습해보았습니다.
+이처럼 Context API와 useReducer 조합을 통해 props drilling 없이 상태관리를 해보았다.
+
+공식 문서를 보지 않았다면 알 수 없는 개념이어서 공식문서를 읽어보는 것이 제공하는 API에 대한 의미와 목적을 파악하는 가장 기초적이고 중요한 방법이 아닐까 생각된다. 📚
