@@ -48,7 +48,7 @@ export default {
         projects: [
           {
             title: '프립 웹 서비스 개편',
-            date: '2021. 07 ~ 2022. 01',
+            date: '2021. 07 ~ 현재',
             description: '프립 웹 서비스와 관련된 개발을 진행하고 있습니다.',
             tasks: [
               '프립 웹 서비스 대규모 개편 작업',
