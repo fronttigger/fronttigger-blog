@@ -1,27 +1,27 @@
 ---
-title: npm workspace로 모노레포 구현하기 #required
+title: npm workspaces로 모노레포 구성하기 #required
 tags:
   - npm
   - monorepo
   - react
 published: true # required
-date: '2022. 2. 23' # required
+date: '2022. 2. 26' # required
 description: '모노레포 만드는 방식도 엄청 다양하네' # required
-thumbnailImg: '/thumbnail/2022/02/npm/monorepo.png' # required
+thumbnailImg: '/thumbnail/2022/02/npm/npm-workspaces.png' # required
 ---
 
-## npm workspace의 등장
+## npm workspaces의 등장
 
 예로부터 모노레포를 구성하기 위한 방식은 [lerna](https://lerna.js.org/)와 [yarn](https://yarnpkg.com/)을 활용하여 구성했었다.
 
-npm 7 버전부터 [workspace](https://docs.npmjs.com/cli/v8/using-npm/workspaces) 기능이 추가되면서 모노레포를 구성할 수 있게 되었다.
+npm 7 버전부터 [workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces) 기능이 추가되면서 모노레포를 구성할 수 있게 되었다.
 그래서 npm 환경에서 모노레포를 구성하고 싶다면 앞으로는 추가 라이브러리를 활용하지 않아도 된다.
 
 현재 사이드 프로젝트로 공통으로 사용할 모노레포를 구성 중에 있는데, 이를 구성하기 전 정말 단순한 예제를 통해 감을 익힌 경험을 공유하려고 한다.
 
 ## 프로젝트 구성
 
-먼저 간단한 Node 프로젝트를 생성해주었다.
+먼저 간단한 Node 프로젝트를 생성해준다.
 
 ### package.json
 
@@ -95,7 +95,7 @@ module.exports = sum
 
 위 명령어를 실행하면 아래와 같이 생성되고 선언한 패키지 네이밍대로 잘 생성되어있다.
 
-이미지
+<img src="/images/2022/02/npm/package-npm.png" alt="npm directory" />
 
 자 이제 사용하러 가보자! 🏃‍♂️
 
