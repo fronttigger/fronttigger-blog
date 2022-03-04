@@ -8,7 +8,7 @@ tags:
 published: true # required
 date: '2022. 3. 1' # required
 description: '모노레포에 rollup 끼얹기' # required
-thumbnailImg: '/thumbnail/2022/02/npm/npm-workspaces.png' # required
+thumbnailImg: '/thumbnail/2022/03/monorepo/npm-rollup.png' # required
 ---
 
 ## 모노레포는 갑자기 왜?
@@ -25,4 +25,51 @@ REST API를 Apollo GraphQL로 바꾸고, 기존 서비스 되고있던 화면들
 
 그래서 일단 먼저 공통적으로 사용되는 컴포넌트, 유틸, 커스텀 훅 등을 먼저 모아놓은 후 추후 어떤 형태의 구조를 가져가던 적어도 공통으로 사용되는 것들은 재활용 할 수 있다고 판단했고 이를 하기 위해서 공통 라이브러리를 제작하기로 결정했다.
 
-스펙을 고민하던 중 사이드 프로젝트에서 사용하던 **npm workspaces와 rollup**조합을 통해 구성하기로 결정하였고, 이를 셋업한 경험을 공유하려 한다.
+스펙을 고민하던 중 마침 사이드 프로젝트에서 사용하던 **npm workspaces와 rollup**조합을 통해 구성하기로 결정하였고, 이를 셋업한 경험을 공유하려 한다.
+
+만약 npm workspaces가 생소하다면 아주 기초적인 내용을 다룬 [npm workspaces로 모노레포 구성하기](https://tigger.dev/2022/npm/workspace)글을 참고하면 도움이 될 것 같다.
+
+## 모노레포 프로젝트 구성
+
+npm workspaces를 활용하여 모노레포의 기본 프로젝트를 구성해주었다.
+
+여기에 기본적으로 사용될 **라이브러리, 린트, 타입스크립트** 등을 포함하였다.
+구성한 프로젝트 구조는 아래와 같다.
+
+```text
++-- .github
+|   +-- workflows [CI/CD]
+|   |   +-- *.yaml
++-- packages
+|   +-- hooks [리액트에서 사용될 커스텀 훅]
+|   |   +-- src
+|   |   |   +-- index.ts
+|   |   |   +-- *.ts
+|   |   +-- package.json
+|   |   +-- README.md
+|   |   +-- rollup.config.js
+|   |   +-- tsconfig.esm.json
+|   |   +-- tsconfig.json
+|   +-- utils [공통 유틸 모듈]
+|   |   +-- src
+|   |   |   +-- index.ts
+|   |   |   +-- *.ts
+|   |   +-- package.json
+|   |   +-- README.md
+|   |   +-- rollup.config.js
+|   |   +-- tsconfig.esm.json
+|   |   +-- tsconfig.json
++-- scripts
+|   +-- *.sh
++-- .eslintrc
++-- .gitignore
++-- .prettierrc
++-- CHANGELOG.md
++-- package.json
++-- README.md
++-- tsconfig.base.json
+```
+
+최상위에 프로젝트 자체에서 사용될 규칙, 의존성, 설정을 한 후 **packages** 내부에서 이를 가져와 사용할 수 있도록 구성했다.
+
+현재 컴포넌트에 대한 부분들은 없는데 추후 컴포넌트를 제작할 때 CSS 라이브러리, 테스트 등 정해지는 스펙에 따라 추가 셋업이 필요할 것 같다.
