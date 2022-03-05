@@ -73,3 +73,9 @@ npm workspaces를 활용하여 모노레포의 기본 프로젝트를 구성해�
 최상위에 프로젝트 자체에서 사용될 규칙, 의존성, 설정을 한 후 **packages** 내부에서 이를 가져와 사용할 수 있도록 구성했다.
 
 현재 컴포넌트에 대한 부분들은 없는데 추후 컴포넌트를 제작할 때 CSS 라이브러리, 테스트 등 정해지는 스펙에 따라 추가 셋업이 필요할 것 같다.
+
+## Rollup
+
+번들러의 한 종류인 Rollup은 webpack과 같이 여러 파일들을 통해 애플리케이션 혹은 라이브러리를 만들어주는 번들러다.
+그 중에서 Rollup을 사용한 이유는 [Tree Shaking](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)을 위해서인데,
+webpack으로도 가능하지만 Rollup을 사용하면 ESM 형태로 바로 빌드가 가능하기 때문에 보다 쉽고 간편하게 구현할 수 있다.
