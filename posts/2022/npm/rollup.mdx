@@ -79,3 +79,86 @@ npm workspaces를 활용하여 모노레포의 기본 프로젝트를 구성해�
 번들러의 한 종류인 Rollup은 webpack과 같이 여러 파일들을 통해 애플리케이션 혹은 라이브러리를 만들어주는 번들러다.
 그 중에서 Rollup을 사용한 이유는 [Tree Shaking](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)을 위해서인데,
 webpack으로도 가능하지만 Rollup을 사용하면 ESM 형태로 바로 빌드가 가능하기 때문에 보다 쉽고 간편하게 구현할 수 있다.
+
+### config
+
+rollup에서 제공해주는 여러가지 기능과 플러그인들을 활용하여 설정해보았다.
+
+```javascript
+import fs from 'fs'
+import path from 'path'
+
+import babel from '@rollup/plugin-babel'
+import resolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import typescript from 'rollup-plugin-typescript2'
+import peerDepsExternal from 'rollup-plugin-peer-deps-external'
+import terser from 'rollup-plugin-terser'
+
+// 번들링할 파일을 객체에 담는다.
+const inputs = fs.readdirSync('./src').reduce((result, file) => {
+  const fileName = path.parse(file).name
+  result[fileName] = `src/${file}`
+  return result
+}, {})
+
+const input = { ...inputs, index: './src/index.ts' }
+
+export default [
+  {
+    input,
+    // 번들할 포맷과 디렉토리를 특정 파일에 명시한다.
+    output: [
+      {
+        dir: 'lib',
+        format: 'cjs',
+      },
+    ],
+    external: [/@babel\/runtime/],
+    plugins: [
+      // peerDependencies에 있는 의존성들을 빌드에 포함시키지 않는다.
+      peerDepsExternal(),
+      // babel 설정을 할 수 있도록 도와준다.
+      babel({
+        babelHelpers: 'runtime',
+        exclude: /node_modules/,
+      }),
+      // 외부 라이브러리 사용 및 ts, tsx 지원을 해준다.
+      resolve(),
+      // Commonjs 형태의 코드를 ES6로 변환하여 빌드에 포함되도록 해준다.
+      commonjs(),
+      // 타입스크립트를 사용할 수 있게 해준다.
+      typescript({ useTsconfigDeclarationDir: true }),
+      // 번들 결과물을 minify 해준다.
+      terser(),
+    ],
+  },
+  {
+    input,
+    output: [
+      {
+        dir: 'lib/esm',
+        format: 'esm',
+      },
+    ],
+    external: [/@babel\/runtime/],
+    plugins: [
+      peerDepsExternal(),
+      babel({
+        babelHelpers: 'runtime',
+        exclude: /node_modules/,
+      }),
+      resolve(),
+      commonjs(),
+      typescript({ useTsconfigDeclarationDir: true, tsconfig: 'tsconfig.esm.json' }),
+      terser(),
+    ],
+  },
+]
+```
+
+config 설정은 ESM 형식과 CJS 형식을 지원하기 위해 두 설정을 모두 추가해주었습니다.
+
+ESM의 경우 다른 경로에 설정하기 때문에 ts 설정도 따로 분리하여 추가해주었습니다.
+
+### package.json
