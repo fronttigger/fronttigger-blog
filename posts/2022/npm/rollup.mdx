@@ -6,14 +6,14 @@ tags:
   - react
   - rollup
 published: true # required
-date: '2022. 3. 1' # required
-description: '모노레포에 rollup 끼얹기' # required
+date: '2022. 3. 7' # required
+description: '모노레포와 rollup 단짠단짠 조합' # required
 thumbnailImg: '/thumbnail/2022/03/monorepo/npm-rollup.png' # required
 ---
 
 ## 모노레포는 갑자기 왜?
 
-회사에서 이번에 새롭게 대개편 작업을 하면서 정말 많은 도메인의 개편을 하였다.
+회사에서 이번에 새롭게 대개편 작업을 하면서 정말 많은 부분에서 개편을 하였다.
 
 REST API를 Apollo GraphQL로 바꾸고, 기존 서비스 되고있던 화면들도 많은 개편이 있었으며 거기에 대한 많은 컴포넌트들과 유틸들도 생겨났다.
 
@@ -21,13 +21,17 @@ REST API를 Apollo GraphQL로 바꾸고, 기존 서비스 되고있던 화면들
 
 여기까지는 뭐 개발자도 없고 관리하기 편하니까 어쩔 수 없이 가져가는 구조라고 생각한다.
 
-그런데 이번에 부분적으로 화면들을 개선하면서 동시에 Next.js로 개발해보자는 얘기가 나왔는데 현재 하나의 프로젝트로 되어있다보니 이를 한 번에 Next.js로 옮길 수도 없는 노릇이고, 그렇다고 부분적으로 적용해서 서비스하기에는 현재로선 기술적으로 부족하다고 판단이 되었다.
+그런데 이번에 부분적으로 화면들을 추가 개선하는 새로운 프로젝트와 동시에 Next.js로 개발해보자는 얘기가 나왔는데 현재 하나의 프로젝트로 되어있다보니 이를 한 번에 Next.js로 옮길 수도 없는 노릇이고, 그렇다고 부분적으로 적용해서 서비스하기에는 현재로선 기술적으로 부족하다고 판단이 되었다.
 
 그래서 일단 먼저 공통적으로 사용되는 컴포넌트, 유틸, 커스텀 훅 등을 먼저 모아놓은 후 추후 어떤 형태의 구조를 가져가던 적어도 공통으로 사용되는 것들은 재활용 할 수 있다고 판단했고 이를 하기 위해서 공통 라이브러리를 제작하기로 결정했다.
 
-스펙을 고민하던 중 마침 사이드 프로젝트에서 사용하던 **npm workspaces와 rollup**조합을 통해 구성하기로 결정하였고, 이를 셋업한 경험을 공유하려 한다.
+스펙을 고민하던 중 마침 사이드 프로젝트에서 사용하던 `npm workspaces`와 `rollup`조합을 통해 구성하기로 결정하였고, 이를 셋업한 경험을 공유하려 한다.
 
 만약 npm workspaces가 생소하다면 아주 기초적인 내용을 다룬 [npm workspaces로 모노레포 구성하기](https://tigger.dev/2022/npm/workspace)글을 참고하면 도움이 될 것 같다.
+
+## 구현한 프로젝트
+
+이 방법으로 구현한 프로젝트는 [https://github.com/frientrip/libraries-frip](https://github.com/frientrip/libraries-frip)에 구현되어있다.
 
 ## 모노레포 프로젝트 구성
 
@@ -74,11 +78,60 @@ npm workspaces를 활용하여 모노레포의 기본 프로젝트를 구성해�
 
 현재 컴포넌트에 대한 부분들은 없는데 추후 컴포넌트를 제작할 때 CSS 라이브러리, 테스트 등 정해지는 스펙에 따라 추가 셋업이 필요할 것 같다.
 
+## 프로젝트 package.json 설정
+
+```json
+{
+  "name": "@frientrip/libraries-frip",
+  "version": "0.0.1",
+  "description": "frientrip libraries",
+  "main": "index.js",
+  "workspaces": ["./packages/*"],
+  "scripts": {
+    "clean": "find packages -type d -name \"lib\" -print0 | xargs -0 -I {} /bin/rm -rf \"{}\"",
+    "build:all": "npm run clean && npm run build --workspaces",
+    "deploy:all": "npm run deploy --workspaces"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frientrip/libraries-frip"
+  },
+  "keywords": ["frip", "libraries", "componenets", "utils"],
+  "author": "frip",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frientrip/libraries-frip/issues"
+  },
+  "homepage": "https://github.com/frientrip/libraries-frip#readme",
+  "dependencies": {
+    "@babel/runtime": "^7.17.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@copiest/eslint-config-copiest": "^0.0.13",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "rollup": "^2.67.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.31.2"
+  }
+}
+```
+
+전체 프로젝트를 구성하는 정보들과 명령어들을 만들어주었고, 모노레포를 구성할 때 필요한 여러 의존성들을 설치하였다.
+
 ## Rollup
 
 번들러의 한 종류인 Rollup은 webpack과 같이 여러 파일들을 통해 애플리케이션 혹은 라이브러리를 만들어주는 번들러다.
+
 그 중에서 Rollup을 사용한 이유는 [Tree Shaking](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)을 위해서인데,
-webpack으로도 가능하지만 Rollup을 사용하면 ESM 형태로 바로 빌드가 가능하기 때문에 보다 쉽고 간편하게 구현할 수 있다.
+webpack으로도 가능하지만 Rollup을 사용하면 `ESM` 형태로 바로 빌드가 가능하기 때문에 보다 쉽고 간편하게 구현할 수 있다.
 
 ### config
 
@@ -93,7 +146,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
-import terser from 'rollup-plugin-terser'
+import { terser } from 'rollup-plugin-terser'
 
 // 번들링할 파일을 객체에 담는다.
 const inputs = fs.readdirSync('./src').reduce((result, file) => {
@@ -157,8 +210,119 @@ export default [
 ]
 ```
 
-config 설정은 ESM 형식과 CJS 형식을 지원하기 위해 두 설정을 모두 추가해주었습니다.
+config 설정은 ESM 형식과 CJS 형식을 지원하기 위해 두 설정을 모두 추가해주었다.
 
-ESM의 경우 다른 경로에 설정하기 때문에 ts 설정도 따로 분리하여 추가해주었습니다.
+ESM의 경우에는 다른 경로에 설정하기 때문에 ts 설정도 따로 분리하였다.
 
-### package.json
+이제 번들러 설정도 끝났으니 utils 프로젝트를 빌드 하기 위한 package.json 설정을 했다.
+
+## utils/package.json
+
+```json
+{
+  "name": "@frientrip/utils",
+  "description": "common utils of frip",
+  "version": "0.0.1",
+  "main": "./lib/index.js",
+  "module": "./lib/esm/index.js",
+  "sideEffects": false,
+  "private": false,
+  "scripts": {
+    "build": "rollup -c",
+    "build-declarations": "tsc",
+    "version": "npm version",
+    "deploy": "npm publish --access=public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frientrip/libraries-frip"
+  },
+  "keywords": ["utils", "frip"],
+  "dependencies": {},
+  "devDependencies": {},
+  "files": ["lib"]
+}
+```
+
+현재 설정은 CJS와 ESM을 두 형식을 지원하기 때문에 main, module 두 설정을 해주었다. 이 두 가지 옵션을 함께 명시하면 번들러의 입장에서는 **module**을 사용하고 ES6를 사용할수 없는 환경일 때는 **main**을 사용하게 된다.
+
+명령어에는 빌드와 npm에 배포할 명령어를 추가했다.
+
+그리고 사용할 파일을 명시해주어야 하기 때문에 `files`에 빌드시 생성할 **lib**를 선언했다.
+
+지금까지 빌드를 하기 위한 설정은 어느정도 된 것 같으니 빌드할 대상을 한 번 만들어보자!
+
+## 빌드할 코드 작성
+
+### src/addNumber.ts
+
+```typescript
+function addNumber(a: number, b: number) {
+  return a + b
+}
+
+export default addNumber
+```
+
+### src/index.ts
+
+```javascript
+export { default as addNumber } from './addNumber'
+```
+
+위 두가지 테스트 코드를 만들고 빌드를 시켜보자
+
+```bash
+cd packages/utils
+npm run build
+```
+
+만든 utils로 가서 빌드 명령어를 작성하면 아래와 같이 두 종류의 빌드 결과물이 나온다.
+
+<img src="/images/2022/03/monorepo/build-directory.png" alt="build directory" />
+
+동일한 구조로 생성 되었지만, 내부를 보면 차이가 있다.
+
+## 빌드된 코드
+
+### lib/index.ts
+
+```javascript
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: !0 })
+var e = require('./addNumber.js')
+exports.addNumber = e
+```
+
+### lib/esm/index.ts
+
+```javascript
+export { default as addNumber } from './addNumber.js'
+```
+
+`CJS`에서는 **require, exports**를 통해서 모듈을 다루고 있다면 `ESM`은 **export, from**를 통해서 다루고있다.
+
+각 의도에 맞게 잘 되고있으니 이제 이걸 외부에서 사용할 수 있도록 npm에 배포를 해준 후 테스트를 진행했다.
+
+## 배포된 모노레포 사용
+
+최상위 package.json에서 배포 명령어를 통해 npm에 배포된 패키지들을 이제 설치해서 사용하면된다.
+
+아까 만들었었던 **addNumber** 함수를 사용해보자
+
+```bash
+npm i @frientrip/utils
+```
+
+```javascript
+import { addNumber } from '@frientrip/utils'
+
+console.log(addNumber(1, 2)) // 3
+```
+
+배포된 모노레포가 잘 동작한다! 🎉🎉
+
+매번 사이드 프로젝트로만 기술들을 접하고 사용해보았는데, 이번 기회에 실무에 사용하기 적절한 기회가 와서 첫 운을 띄워보았다.
+엄청나게 거창한 프로젝트는 아니지만 이런 프로젝트들을 통해 하나씩 개선하는 맛이 있는 것 같다.
+
+추후에는 배포 환경, 공통으로 사용되는 모든 것들을 전부 관리 할 수 있도록 잘 개선해봐야겠다.
