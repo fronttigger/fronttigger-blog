@@ -22,7 +22,6 @@
     "jsx": "preserve",
     "baseUrl": "src/",
     "types": ["node", "jest", "@testing-library/jest-dom"],
-    "typeRoots": ["./node_modules/@types", "./typings"],
     "paths": {
       "#components/*": ["components/*"],
       "#constants/*": ["constants/*"],
