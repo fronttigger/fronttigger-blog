@@ -12,6 +12,7 @@ import Layout from '#components/layout'
 import Footer from '#components/footer'
 import { lightTheme, darkTheme } from '#shared/theme.css'
 import { BLOG_THEME_KEY, LIGHT_MODE, DARK_MODE } from '#constants'
+import { pageview } from '#utils/ga'
 
 export type CustomThemeType = 'LIGHT' | 'DARK'
 
@@ -76,8 +77,19 @@ function App({ Component, pageProps }: AppProps) {
       window.history.scrollRestoration = 'manual'
       return true
     })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      pageview(url)
+    }
+
+    Router.events.on('routeChangeComplete', handleRouteChange)
+
+    return () => Router.events.off('routeChangeComplete', handleRouteChange)
+  }, [Router.events])
 
   return (
     <RecoilRoot>
