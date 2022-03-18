@@ -1,21 +1,21 @@
 ---
-title: Github Actions를 이용하여 자동으로 Canary 배포 환경 구축하기 #required
+title: Github Actions를 이용하여 npm에 자동화 Canary 배포 환경 구축하기 #required
 tags:
   - npm
   - monorepo
   - rollup
   - canary
-  - ci/cd
+  - CI/CD
   - release
 published: true # required
 date: '2022. 3. 18' # required
 description: '까나리액젓 특유의 짠맛과 단맛 그리고 비린 맛' # required
-thumbnailImg: '/thumbnail/2022/03/monorepo/npm-rollup.png' # required
+thumbnailImg: '/thumbnail/2022/03/release/canary.png' # required
 ---
 
 최근 업무를 하면서 공통 라이브러리의 필요성을 느끼게 되어 사내 라이브러리를 구성중에 있다.
 
-이전 글에서 작성했듯 npm workspaces와 rollup을 사용하여 구성하였고 npm에 배포까지 완료한 상황이다.
+[이전 글](https://tigger.dev/2022/npm/rollup)에서 작성했듯 npm workspaces와 rollup을 사용하여 구성하였고 npm에 배포까지 완료한 상황이다.
 
 최근 추가적으로 테스트 코드를 도입하여 구현한 코드에 대한 테스트를 하고는 있지만, 생각해보니 정식적으로 배포해서 외부에서 사용해보기 전까지는 100% 보장되지 않겠다고 느꼈다.
 
@@ -31,4 +31,114 @@ Canary 배포의 유래는 광부들이 광산에 들어갈 때 유독가스의 
 
 현재 만들고 있는 공통 라이브러리는 사용자들에게 서비스가 되는 중요한 부분이기도 하면서 개발자들이 사용할 때 개발친화적이기도 해야하기 때문에 현 상황에 적합하다고 판단했다.
 
-그래서 이를 간단하게 스크립트를 만든 후 Github Actions를 통해 특정 기능을 push 하면 Canary 버전이 npm에 배포되어 외부에서 테스트 버전으로 사용될 수 있도록 만들어본 경험을 공유하려 한다.
+그래서 이를 간단하게 스크립트를 만든 후 **Github Actions**를 통해 특정 기능을 push 하면 Canary 버전이 npm에 자동으로 배포되어 외부에서 테스트 버전으로 사용될 수 있도록 만들어본 경험을 공유하려 한다.
+
+### Script 작성
+
+npm에 자동화하여 배포하기 위한 스크립트를 하나 만들어주어야한다.
+이를 배포하기 위해서는 배포 버전도 신경을 써주어야 했는데 아래 세 가지를 반영했다.
+
+- 프로젝트 버전
+- 최신 커밋
+- 태그명
+
+Canary 배포란 점을 미루어 보았을 때 정식 배포가 아닌 **현재 프로젝트 버전** 기준일 것이고 그리고 최신 커밋의 내용을 반영해야 하기 때문에 **최신 커밋의 SHA**를 넣어줘서 판별했다.
+
+그리고 빌드 후 **태그**를 canary로 명시하여 배포하면 끝이다.
+
+```shell
+#!/usr/bin/env bash
+pkg_version=`node -e "console.log(require('./package.json').version)"`
+git_commit_sha=`git rev-parse --short HEAD`
+
+npm run version --workspaces $pkg_version-$git_commit_sha
+npm run build:all
+npm run deploy --workspaces -- --tag canary
+```
+
+프로젝트 버전과 최신 커밋의 내용을 담아준 후 버전 수정, 빌드, canary 배포 순으로 처리하면 된다.
+
+자 그러면 스크립트도 완성 되었으니 이 스크립트를 실행해줄 프로젝트 명령어도 만들어보자!
+
+#### ./package.json
+
+```json
+{
+  // ...
+  "version": "0.1.1",
+  "workspaces": ["./packages/*"],
+  "scripts": {
+    "build:all": "npm run clean && npm run build --workspaces",
+    "deploy:all": "npm run deploy --workspaces",
+    "deploy:canary": "sh ./scripts/canary-publish.sh"
+  }
+  // ...
+}
+```
+
+이제 루트 디렉토리에서 deploy:canary를 실행하면 우리가 만든 스크립트가 실행될 것이다.
+
+스크립트를 만든 이유는 바로 자동화다. 우리가 일일이 커밋하고 푸시하고 버전 변경하고 배포하고 그럴 필요 없이 특정 피쳐를 개발하고 이를 외부 프로젝트에서 테스트 할 때 Canary 배포가 필요한 것이기 때문에 Github Actions를 통해 자동화를 했다.
+
+### npm token 발급
+
+갑자기 Github Actions 얘기하더니 뭔 토큰같은 뚱딴지 같은 소리냐 하겠지만, github 특정 레포지토리에 대한 npm 배포 자동화를 하기 위해선 **인증 토큰**을 등록해야한다.
+
+그래서 토큰을 발급 받고, github에 등록해준 다음 이 토큰을 이용하여 workflow를 만들어주어야한다.
+
+![create npm token](/images/2022/03/release/npm_token.png)
+![github npm token](/images/2022/03/release/github_token.png)
+
+특정 이름을 입력하고 자동화를 위한 토큰을 만들어서 나온 토큰을 github에 등록한다.
+
+![github npm token success](/images/2022/03/release/github_token_success.png)
+
+자 등록이 완료 되었으면 이제 Github Actions를 사용할 모든 준비가 끝났다.
+
+### .github/workflows/canary.yaml
+
+우리는 피쳐 개발에 대한 부분만 Canary 배포를 하면 되기 때문에 feature 브랜치에 한해서 진행했다.
+
+```yaml
+name: canary-publish
+
+on:
+  push:
+    branches:
+      - 'feature/**' # feature 브랜치에 한해서 동작
+env:
+  NODE_VERSION: '16.x'
+  NPM_REGISTRY_URL: 'https://registry.npmjs.org'
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # 등록했던 NPM_TOKEN
+
+jobs:
+  canary:
+    if: "!contains(github.event.head_commit.message, 'skip canary')"
+    # 만약 Canary 배포를 하고 싶지 않다면 commit message에 skip canary 작성
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.NPM_REGISTRY_URL }}
+
+      - run: npm ci
+
+      - name: canary deploy
+        run: npm run deploy:canary # 패키지 명령어 수행
+```
+
+위와 같이 구성을 하면 최종적으로 feature/\*\* 형태의 브랜치를 push 할 때 자동으로 Canary 배포가 되어 npm에 쌓이게 된다.
+
+![npm success](/images/2022/03/release/npm_success.png)
+
+자 그러면 기존에 존재하던 정식 0.1.1 버전과 SHA값과 결합된 canary 태그가 생겼다.
+
+이제 정식 배포 전 Canary 버전을 프로젝트에 설치 후 테스트하여 이상 유무 판별을 진행하면 된다. 🎉
+
+이러한 방식을 통해 실제 테스트를 통해 한 번 더 검증이 가능 후 서비스에 반영되기 때문에 보다 안정적이며, Canary 형태로 배포 후 테스트가 가능하기 때문에 부담없이 테스트가 가능하다는 점에서 용이한 것 같다. 👍
