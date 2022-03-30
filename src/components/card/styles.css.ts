@@ -53,7 +53,7 @@ export const title = style([
   {
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.domain.card.title,
-    lineHeight: '1.1',
+    lineHeight: '1.15',
   },
   twoLineEllipsis,
 ])
