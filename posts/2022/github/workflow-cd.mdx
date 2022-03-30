@@ -15,7 +15,7 @@ thumbnailImg: '/thumbnail/2022/04/workflow/workflow-cd.png' # required
 
 이번에는 본격적으로 실제로 사용될 버전을 배포하기 위해 또 Github Actions를 활용하여 개발하기로 하였다.
 
-기본적으로 Git Flow 정책을 따라가기 때문에 여기서 꼭 필요한 부분들에 대해 자동화를 진행하였으며 순서는 release -> main -> develop 순으로 배포 이후 develop 브랜치가 최신화가 되는 형태를 띄고있다.
+기본적으로 Git Flow 전략을 따라가기 때문에 여기서 꼭 필요한 부분들에 대해 자동화를 진행하였으며 순서는 release -> main -> develop 순으로 배포 이후 develop 브랜치가 최신화가 되는 형태를 띄고있다.
 
 위 순서에 대한 배포 자동화를 개발하며 알아낸 개념들과 추가적으로 함께 진행되면 좋았던 workflow를 개발한 경험을 공유하려 한다.
 
@@ -65,7 +65,7 @@ jobs: # 필수로 하나 이상의 job을 가지고 있어야 하며 병렬적�
 
 말은 뻔지르르하게 했지만 실상 많은 양의 코드는 아니다.
 
-현재 Git Flow 정책을 사용 중이기 때문에 release 브랜치에서 `main` 브랜치로 **push**시 최종적으로 전체의 패키지들이 배포가 되도록 처리했다.
+현재 Git Flow 전략을 사용 중이기 때문에 release 브랜치에서 `main` 브랜치로 **push**시 최종적으로 전체의 패키지들이 배포가 되도록 처리했다.
 
 이걸 실행하면 아래와 같이 main 브랜치로 push 했을 때 이벤트가 발생하여 workflow가 실행된다.
 
