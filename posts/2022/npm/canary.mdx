@@ -1,9 +1,10 @@
 ---
 title: Github Actions를 이용하여 npm에 Canary 자동화 배포 환경 구성하기 #required
 tags:
+  - github actions
   - npm
   - monorepo
-  - rollup
+  - workflow
   - canary
   - CI/CD
   - release
@@ -106,6 +107,7 @@ on:
   push:
     branches:
       - 'feature/**' # feature 브랜치에 한해서 동작
+
 env:
   NODE_VERSION: '16.x'
   NPM_REGISTRY_URL: 'https://registry.npmjs.org'

@@ -1,5 +1,5 @@
 ---
-title: Github Actions로 npm 배포 자동화 및 특정 브랜치 자동 병합하기 #required
+title: Github Actions로 배포 자동화 및 특정 브랜치에 자동 병합하기 #required
 tags:
   - github actions
   - workflow
@@ -8,10 +8,10 @@ tags:
 published: true # required
 date: '2022. 4. 1' # required
 description: 'Canary 배포 자동화에 이은 두번째 자동화 시리즈' # required
-thumbnailImg: '/thumbnail/2022/02/github/image-compress.png' # required
+thumbnailImg: '/thumbnail/2022/04/workflow/workflow-cd.png' # required
 ---
 
-[저번 글](https://tigger.dev/2022/npm/canary)에서는 기능 개발시 자동으로 Canary 배포를 진행해보았었다.
+[저번 글](https://tigger.dev/2022/npm/canary)에서는 기능 개발시 자동으로 Canary 배포가 되는 workflow를 개발해보았었다.
 
 이번에는 본격적으로 실제로 사용될 버전을 배포하기 위해 또 Github Actions를 활용하여 개발하기로 하였다.
 
@@ -69,7 +69,7 @@ jobs: # 필수로 하나 이상의 job을 가지고 있어야 하며 병렬적�
 
 이걸 실행하면 아래와 같이 main 브랜치로 push 했을 때 이벤트가 발생하여 workflow가 실행된다.
 
-<img src="/images/2022/03/workflow/github-deploy.png" alt="github deploy" />
+<img src="/images/2022/04/workflow/github-deploy.png" alt="github deploy" />
 
 여기서 끝낼 수도 있었지만 **Git Flow** 특성상 배포된 버전의 코드들을 다음 개발을 진행할 `develop` 브랜치에 최신화 하여 작업을 이어가야한다. 기존에는 수동으로 했었는데 안그래도 불편함을 느끼고 있어서 이번 기회에 싸그리 자동화를 해봐야겠다는 의지가 불타올랐다. 🔥
 
@@ -116,7 +116,7 @@ release 브랜치에서 main 브랜치에 push 이후 CD workflow가 정상적�
 
 작동한 화면을 보면 아래와 같다.
 
-<img src="/images/2022/03/workflow/github-develop-merge.png" alt="github develop branch merged" />
+<img src="/images/2022/04/workflow/github-develop-merge.png" alt="github develop branch merged" />
 
 비록 간단하지만 이렇게 두 가지의 workflow를 만들어 보면서 github workflow의 문법에 대해 알게 되었다.
 
