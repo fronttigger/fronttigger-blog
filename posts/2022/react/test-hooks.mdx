@@ -14,3 +14,121 @@ thumbnailImg: '/thumbnail/2022/01/react/context-reducer.png' # required
 [React Hooks Testing Library](https://react-hooks-testing-library.com/)는 hooks에 대한 테스트 유틸리티를 제공한다. 이를 활용하여 훅에 대한 여러가지 테스트가 가능하며, 편리하게 테스트가 가능하도록 도와주는 역할을 한다.
 
 React Hooks Testing Library를 사용하여 테스트를 하며 유용하게 사용했던 방식과 개념을 공유하려 한다.
+
+## 설치
+
+테스트를 하기 위해선 먼저 설치를 진행해야한다.
+
+```bash
+# npm
+npm install --save-dev @testing-library/react-hooks
+
+# yarn
+yarn add --dev @testing-library/react-hooks
+```
+
+## 간단한 카운팅 커스텀 훅
+
+```javascript
+import { useCallback, useEffect, useState } from 'react'
+
+function useCount(initialValue: number = 0, timeout: number = 0) {
+  const [count, setCount] = useState(initialValue)
+
+  const increase = (): void => setCount((count) => count + 1)
+
+  const reset: () => void = useCallback((): void => setCount(initialValue), [initialValue])
+
+  useEffect((): void => {
+    timeout && setTimeout(() => increase(), timeout)
+  }, [timeout])
+
+  if (count > 10000) {
+    throw Error('10000 이하만 가능합니다.')
+  }
+
+  return {
+    count,
+    setCount,
+    increase,
+    reset,
+  }
+}
+
+export default useCount
+```
+
+특별하게 복잡할 것 없는 카운팅을 담당하는 커스텀 훅이다.
+
+이를 통해 몇 가지 테스트 방식을 알아보자
+
+## useCount의 값 확인
+
+일단 아무것도 하지 않는 상태에서 초기 값이 잘 들어가있는지 확인해야하는 단계다.
+
+```javascript
+import { renderHook } from '@testing-library/react-hooks'
+
+import useCount from '.'
+
+describe('useCount', () => {
+  it('result에 담겨있는 값 확인', () => {
+    const { result } = renderHook(() => useCount())
+
+    expect(result.current.count).toBe(0)
+  })
+})
+```
+
+설치한 라이브러리에서 `renderHook` 함수를 이용하여 콜백 함수로 예제로 만든 커스텀 훅을 선언하게 되면 `result`란 값이 있는데, 이는 커스텀 훅에서 반환되는 값을 가져올 수 있는 값이다.
+
+result에는 `current`라는 값이 담겨있으며, 이를 통해 커스텀 훅에서 반환되었던 count, setCount, increase, reset 과 같은 반환값들을 사용할 수 있다.
+
+## state 변경시 
+
+커스텀 훅에있는 state가 변경되는 이벤트가 일어나면 `act`라는 함수를 통해 state를 변경시켜주어야 변경에 안전성이 보장된다.
+
+```javascript
+import { renderHook, act } from '@testing-library/react-hooks'
+
+import useCount from '.'
+
+describe('useCount', () => {
+  it('state 변경시', () => {
+    const { result } = renderHook(() => useCount())
+
+    act(() => result.current.increase())
+
+    expect(result.current.count).toBe(1)
+  })
+})
+```
+
+## 매개변수 변경시
+
+현재까지의 테스트 코드를 보면 첫 번째 매개변수에 아무 것도 넣지 않아 0에서 시작하는데, 만약 처음 0으로 시작하더라도 추후 인자를 다시 넣은 후의 값이 필요할 때도 있다. 그럴 때를 위한 방법이다.
+
+```javascript
+it('매개변수 변경시', () => {
+  const { result, rerender } = renderHook(({ initialValue }) => useCount(initialValue), {
+    initialProps: { initialValue: 0 },
+  })
+
+  expect(result.current.count).toBe(0)
+
+  rerender({ initialValue: 10 })
+
+  act(() => result.current.reset())
+
+  expect(result.current.count).toBe(10)
+})
+```
+
+조금 복잡해 보이지만 별건 없다.
+
+renderHook에서는 `rerender` 라는 함수도 지원해주는데 이는 최종적으로 그려진 상태를 다시 한 번 커스텀 훅 함수를 사용하면서 그려주는 역할을 해준다. 즉, 최초 값을 다시 넣어준 후에 리렌더링을 해줄 때 용이하다.
+
+renderHook의 두 번째 매개변수는 객체 형태가 들어가는데, 여기서 **initialProps**라는 값에 최초 값을 넣을 수가 있다.  
+이를 통해서 rerender 함수를 통해 특정 매개변수의 값을 변동시킬 때 사용이 가능하다.
+
+물론 굳이 이를 활용하지 않고 매개변수 하나만 넘겨서 처리할 수 있지만 만약 매개변수가 많고 복잡한 형태라면 initialProps를 활용해 조금 더 편하고 가독성 있게 매개변수를 관리할 수 있다.
