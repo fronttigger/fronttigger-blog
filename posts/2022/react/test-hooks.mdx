@@ -27,7 +27,7 @@ npm install --save-dev @testing-library/react-hooks
 yarn add --dev @testing-library/react-hooks
 ```
 
-## 간단한 카운팅 커스텀 훅
+## 간단한 카운팅 커스텀 훅 구현
 
 ```javascript
 import { useCallback, useEffect, useState } from 'react'
@@ -109,18 +109,24 @@ describe('useCount', () => {
 현재까지의 테스트 코드를 보면 첫 번째 매개변수에 아무 것도 넣지 않아 0에서 시작하는데, 만약 처음 0으로 시작하더라도 추후 인자를 다시 넣은 후의 값이 필요할 때도 있다. 그럴 때를 위한 방법이다.
 
 ```javascript
-it('매개변수 변경시', () => {
-  const { result, rerender } = renderHook(({ initialValue }) => useCount(initialValue), {
-    initialProps: { initialValue: 0 },
+import { renderHook, act } from '@testing-library/react-hooks'
+
+import useCount from '.'
+
+describe('useCount', () => {
+  it('매개변수 변경시', () => {
+    const { result, rerender } = renderHook(({ initialValue }) => useCount(initialValue), {
+      initialProps: { initialValue: 0 },
+    })
+
+    expect(result.current.count).toBe(0)
+
+    rerender({ initialValue: 10 })
+
+    act(() => result.current.reset())
+
+    expect(result.current.count).toBe(10)
   })
-
-  expect(result.current.count).toBe(0)
-
-  rerender({ initialValue: 10 })
-
-  act(() => result.current.reset())
-
-  expect(result.current.count).toBe(10)
 })
 ```
 
@@ -132,3 +138,57 @@ renderHook의 두 번째 매개변수는 객체 형태가 들어가는데, 여�
 이를 통해서 rerender 함수를 통해 특정 매개변수의 값을 변동시킬 때 사용이 가능하다.
 
 물론 굳이 이를 활용하지 않고 매개변수 하나만 넘겨서 처리할 수 있지만 만약 매개변수가 많고 복잡한 형태라면 initialProps를 활용해 조금 더 편하고 가독성 있게 매개변수를 관리할 수 있다.
+
+## 비동기 처리시
+
+비동기를 처리하는 방법에는 여러가지가 있겠지만 renderHook 함수에서 제공되는 `waitForNextUpdate` 함수를 통해 처리가 가능하다.
+
+```javascript
+import { renderHook, act } from '@testing-library/react-hooks'
+
+import useCount from '.'
+
+describe('useCount', () => {
+  it('비동기 처리', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useCount(0, 300))
+
+    expect(result.current.count).toBe(0)
+
+    await waitForNextUpdate()
+
+    expect(result.current.count).toBe(1)
+  })
+})
+```
+
+**waitForNextUpdate**는 Promise를 반환하는데, 비동기를 처리하는 동안 **대기**를 하고 있다가 비동기가 종료되면 resolve를 반환한다.
+
+현재 커스텀 훅에서 timeout이 존재한다면 setTimeout을 통해 count를 1 추가하는 비동기 처리를 하고 있다.
+
+즉, 최초에는 0이지만 300ms 이후 waitForNextUpdate가 resolve될 것이고 1이 추가된 상태일 것이다.
+
+## 에러 처리시
+
+에러는 이전에 result의 `current`를 사용하는 것이 아닌 `error`를 사용하여 에러 발생 여부를 확인힌다.
+
+```javascript
+import { renderHook, act } from '@testing-library/react-hooks'
+
+import useCount from '.'
+
+describe('useCount', () => {
+  it('에러 처리', () => {
+    const { result } = renderHook(() => useCount(10000))
+
+    expect(result.current.count).toBe(10000)
+
+    act(() => result.current.increase())
+
+    expect(result.error).toEqual(Error('10000 이하만 가능합니다.'))
+  })
+})
+```
+
+현재 커스텀 훅에는 count가 10000을 초과하면 발생하게 되어 있으며 발생시 에러를 던져주고 있다.
+
+그래서 10000 이상이 되었을 때는 에러가 발생하기 때문에 10001의 시점에서 `result.error`를 통해 Error 객체와 동일한지 확인하면 된다.
