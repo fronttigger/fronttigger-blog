@@ -1,0 +1,315 @@
+---
+title: Javascript에서 등장하는 this에 대해 알아보자 #required
+tags:
+  - javascript
+  - this
+  - lexical
+published: true # required
+date: '2022. 4. 9' # required
+description: '팔색조 매력을 지닌 this' # required
+thumbnailImg: '/thumbnail/2022/02/javascript/custom-lint.png' # required
+---
+
+자바스크립트에서도 여타 다른 언어와 마찬가지로 `this`라는 키워드가 존재한다. 하지만 자바스크립트의 `this`는 **악질**이다.
+
+그 이유는 정말 **기회주의자**처럼 이곳 저곳에 기생하고 있다가 본인이 속한 **함수가 필요한 순간**이 오면 슥- 튀어나와서 본인의 역할을 딱 정해버린다.
+
+여기서 **필요한 순간**은 바로 `함수의 호출`이다.
+
+this는 여기저기 필요한 곳에서 위치하며 본인이 어떤 역할을 해야할지 기회를 엿보고 있다가 본인이 속한 함수가 행동을 개시하면 그 행동에 따라서 본인의 역할이 정해진다고 보면된다.
+
+팔색조 this.. 한 번 알아보자
+
+## 전역
+
+전역 범위에는 브라우저, Node.js에서 다르게 동작한다.
+
+```javascript
+// Browser
+console.log(this) // window
+
+// Node.js
+console.log(this) // global
+```
+
+일단 기본적으로 아무 것도 없는 상태인 전역 범위에서 위 두 가지 케이스가 있다.
+
+하지만 이로 인해서 브라우저 환경과 서버 사이드 환경을 분기 처리 해야하는 번거로움과 개발자들간의 지속적인 혼동으로 인해 [globalThis](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/globalThis)로 표준화 하여 이를 사용하도록 [최근 명세](https://tc39.es/ecma262/#sec-globalthis)에 추가가 되기도 하였다.
+
+당연히 globalThis를 사용하는건 최신 IE에선 어림도 없다. 😡
+
+물론 폴리필을 사용하면 해결은 할 수 있으나 최근에는 자바스크립트에서 global this에 접근할 일이 많지 않기 때문에 신중한 고려가 필요할 것 같다.
+
+## Strict mode
+
+자바스크립트는 ES5 이후 엄격 모드를 지원하는데 여기서의 this는 **undefined**를 가리킨다.
+
+```javascript
+function strict() {
+  'use strict'
+  console.log(this)
+}
+
+strict() // undefined
+```
+
+## Object Method
+
+**객체 내부에 메서드**에서의 동작 방식을 살펴보자
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+person.myName() // my name is fronttigger
+```
+
+person이라는 객체 형태의 값이 있고 myName 함수를 선언하였는데, 여기서 내부에 `this.nickname`을 선언해주었다.
+
+여기서의 this는 **person**자체를 가리킨다. 뭐 여기까지는 어렵지 않다. (아닌가..?)
+
+그런데 또 요상한 패턴이 있다.
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+const whoName = person.myName
+
+whoName() // my name is undefined
+```
+
+?????
+
+난데없이 myName 함수를 whoName 변수에 담아주었더니 this를 잃어버렸다.
+
+분명 객체 내 메서드는 객체 그 자체라고 했는데.. 라고 생각하는게 정상이지만 첫 서론에서 전제했던 문구 하나를 다시 살펴보면 **함수의 호출**에 영향을 받는다는 것이다.
+
+즉, person.myName()에서는 **person**이라는 객체 내에서 작동하는 myName 메서드이고 이를 `호출` 했기 때문에 호출 시점에 myName 함수의 this는 **person**이 되는 것이다.
+
+하지만 whoName은 person.myName이라는 함수를 담아주었을 뿐 **함수 호출 시점**이 person이 아닌 전역이기 때문에 전역에 해당되는 this를 호출할 것이다.
+
+그러면 정말 전역이 맞는지 증명을 해보자
+
+```javascript
+var nickname = 'olaf'
+
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+const whoName = person.myName
+
+person.myName() // my name is fronttigger
+whoName() // my name is olaf
+```
+
+전역 변수에 해당되는 nickname을 선언해주었고 whoName의 this가 전역으로 인지되어 olaf 라는 닉네임을 가진 nickname 변수를 this로 삼아 출력해준다.
+
+여기서 그럼 드는 의문이 있다. 만약 객체의 메서드 안에 또 메서드가 있다면 어떨까?
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`) // my name is fronttigger
+
+    function realName() {
+      console.log(`my realName is ${this.nickname}`) // my realName is undefined
+    }
+
+    realName()
+  },
+}
+
+person.myName()
+```
+
+현재까지 알아본바에 의하면 **함수 호출 시점**이라고 했으니 내부에 있는 함수는 당연히 this.nickname이 나와야 할 것 같지만 그렇지 않다.
+
+이 결과로 미루어보아 확실하게 **함수 호출 시점**에 대해서 더 구체화가 되는점은 바로 위치가 어디든 해당 **그 자리**에서의 **함수 호출 시점**이다.
+
+person.myName()을 통해 함수 호출을 하였지만, 이건 myName 함수를 호출 했을 뿐 내부에 있는 realName 함수를 호출한 것이 아니다. myName 함수는 person 객체의 메서드로써 this가 객체에 존재하는 nickname으로 역할이 부여되었지만 realName의 경우 person.realName()으로 호출된 함수가 아닌 정말 날것의 realName 함수를 호출했을 뿐이다.
+
+객체 메서드 안에 함수라고 하더라도 예외는 없다는 것이다. (물론 this를 person으로 만드는 방법은 존재한다. )
+
+이 부분이 많이 헷갈릴텐데 위에서 살펴보았던 whoName 함수와 비슷한 맥락이라고 보면 된다. 소속된 집단이 없으니 자연스럽게 전역을 바라보게 된다.
+
+## Function
+
+자바스크립트의 함수에서도 기회를 엿보고 있는 this가 여럿있다.
+
+### Constructor
+
+생성자 패턴을 활용한 this들에 대해서 알아보자
+
+```javascript
+// Function (ES5)
+function Person(nickname) {
+  this.nickname = nickname
+  this.myName = function () {
+    console.log(this.nickname)
+  }
+}
+
+const person = new Person('fronttigger')
+person.myName() // fronttigger
+
+// Class (ES6)
+class Person {
+  constructor(public nickname) {}
+
+  myName() {
+    console.log(this.nickname)
+  }
+}
+
+const person = new Person('fronttigger');
+person.myName(); // fronttigger
+```
+
+생성자 패턴으로 생성된 객체 내부에서의 this는 생성자 객체 자체를 가리킨다.
+
+그렇다면, 여기서 생성자 함수로 만들어낸 객체의 **prototype**에서도 동일하게 작동하는지 궁금했다.
+
+```javascript
+function Person(nickname) {
+  this.nickname = nickname
+  this.myName = function () {
+    console.log(this.nickname)
+  }
+}
+
+Person.prototype.introduce = function () {
+  console.log(`hello i'm ${this.nickname}`)
+}
+
+const person = new Person('fronttigger')
+
+person.introduce() // hello i'm fronttigger
+```
+
+뭐 Class 형태의 객체에서 동작을 하니 당연한 결과였지만, 기회주의자를 믿지 못해서 한 번 확인해보니 this는 당연히 생성해낸 객체 그 자체였다.
+
+### Arrow Function
+
+화살표 함수에서의 this는 어떻게 동작할까?
+
+요놈은 기존의 상식을 깨는 별종인데 이전에 사용했던 객체 메서드(Object Method)의 예시로 다시 살펴보자
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+person.myName() // my name is fronttigger
+```
+
+객체 메서드는 소속된 person이 객체라고 확인했었다.
+
+하지만 화살표 함수로 변경하게되면?
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+  arrowMyName: () => {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+person.myName() // my name is fronttigger
+person.arrowMyName() // my name is undefined
+```
+
+갑자기 this가 또 **undefined**로 태세전환을 해서 통수를 맞았다. (얼얼하네.. 🤯)
+
+이는 화살표 함수가 **this를 바인딩 하지 않는** 특성을 가지고 있기 때문이다. 또한 `Lexical This`를 통해 **선언**될 때 환경을 기억하여 항상 부모 스코프의 환경을 기억한다.  
+즉, 화살표 함수에서 this는 **부모 스코프**에 해당되는 this를 찾게 되는 것이다.
+
+그러면 아까 whoName에서 this를 검증한 방법처럼 arrowMyName의 상위인 window에 nickname을 선언하여 검증해보자
+
+```javascript
+const nickname = 'olaf'
+
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`)
+  },
+  arrowMyName: () => {
+    console.log(`my name is ${this.nickname}`)
+  },
+}
+
+person.myName() // my name is fronttigger
+person.arrowMyName() // my name is olaf
+```
+
+window에 등록된 nickname을 가져와서 사용중인 것이 확인 가능하다.
+
+## call, apply, bind
+
+call, apply, bind는 보통 **명시적 바인딩**이라는 표현을 사용하는데, 이는 특정 this를 확실하게 명시하여 소속을 부여한다고 보면 된다.
+
+이전에 살펴보았던 예제에서 realName 함수가 전역 this가 되는 처참한 광경을 목격했는데 우린 이 세가지 방법을 통해 해결이 가능하다.
+
+```javascript
+const person = {
+  nickname: 'fronttigger',
+  myName() {
+    console.log(`my name is ${this.nickname}`) // my name is fronttigger
+
+    function realName() {
+      console.log(`my realName is ${this.nickname}`) // my realName is undefined
+    }
+
+    realName() // my name is undefined
+    realName.call(person) // my realName is fronttigger
+    realName.apply(person) // my realName is fronttigger
+    realName.bind(person)() // my realName is fronttigger
+  },
+}
+
+person.myName()
+```
+
+아까 realName 호출시 undefined가 출력되었지만 지금은 다르다.
+
+**call, apply**는 첫번째 매개변수로 특정 객체를 넣어 this 소속을 강제한다. 즉, 내가 원하는 객체를 넣어 그 내부에 있는 값들에 대해서 사용할 수 있는 권한을 얻게 되는 것이다.
+
+**bind**도 this에 권한을 부여하는 역할은 똑같지만, bind는 함수를 호출하는 것이 아닌 this가 부여된 함수를 새로 만들어낸다.  
+그래서 바로 실행을 하기 위해 뒤에 ()를 통해 만들어낸 함수를 바로 실행시킨 것이다.
+
+## 그 밖의 예외
+
+위의 많은 케이스와 예외 처럼 동작하는 this가 있다.
+그 주인공은 바로 [**EventListener**](https://developer.mozilla.org/ko/docs/Web/API/EventTarget/addEventListener#%EC%9D%B4%EB%B2%A4%ED%8A%B8_%EC%88%98%EC%8B%A0%EA%B8%B0_%EB%82%B4%EB%B6%80%EC%9D%98_this_%EA%B0%92)!
+
+```javascript
+my_element.addEventListener('click', function () {
+  console.log(this) // <div>my_element</div>
+})
+```
+
+내부에서 정확히 어떻게 동작하는지는 모르겠지만 **함수 호출 시점**에 결정되는 부분이니 지금까지 살펴본 부분에서는 this가 소속되는 여러가지 방법 (객체 메서드, 생성자, call, apply, bind)이 아님에도 불구하고 이러한 경우가 있다.
+
+이처럼 this는 참 개발 할 때 헷갈리게 만드는 골때리는 요소 중 하나인건 확실히 알 것 같다. 😫
+
+지금까지 자바스크립트에서 this에 대한 여러가지 케이스들을 알아보았는데 최근 this에 대해 많이 사용하는 케이스가 없어 엄청 크게 와닿지는 않는 것 같다. 자주 보고 습득해서 특정 시점에 this에 연관된 문제가 발생 했을 때 파악하고 대처할 수 있는 좋은 계기가 되었으면 좋겠다.
