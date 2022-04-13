@@ -1,13 +1,13 @@
 ---
-title: 커스텀 훅 구현시 반환값은 어떻게 하는게 좋을까? (feat. React) #required
+title: 커스텀 훅 구현시 반환값은 어떻게 하는게 좋을까? #required
 tags:
   - javascript
   - react
   - hooks
 published: true # required
-date: '2022. 4. 13' # required
+date: '2022. 4. 14' # required
 description: '가는 말이 고와야 오는 말이 곱다' # required
-thumbnailImg: '/thumbnail/2022/01/react/context-reducer.png' # required
+thumbnailImg: '/thumbnail/2022/04/react/react-hook.png' # required
 ---
 
 자바스크립트 함수는 하나의 값을 반환한다.
@@ -57,9 +57,10 @@ export default function App() {
 }
 ```
 
-별거 아닌 것 같지만 생각보다 너무 읽기가 힘들다..
+<br />
+<img src="/images/2022/04/react/bad.png" alt="bad" style={{ display: 'block', margin: '0 auto' }} />
 
-<!-- 이미지 -->
+별거 아닌 것 같지만 생각보다 너무 읽기가 힘들다..
 
 하지만 이를 구조 분해 할당을 하면?
 
@@ -88,7 +89,12 @@ export default function App() {
 }
 ```
 
-<!-- 이미지 -->
+<br />
+<img
+  src="/images/2022/04/react/cool.png"
+  alt="cool"
+  style={{ display: 'block', margin: '0 auto' }}
+/>
 
 갑자기 편안- 해진다.
 
@@ -111,17 +117,15 @@ const {
 } = useQuerySectionProductList()
 ```
 
-위 커스텀 훅은 특정 섹션에 있는 상품들을 서버에 요청하고 반환을 받는 훅과 상품 데이터 하나를 받아오는 커스텀 훅이다.
+위 커스텀 훅은 특정 섹션에 있는 상품들을 서버에 요청하고 반환을 받는 커스텀 훅이다.
 
 특정 값이 담긴 변수, 요청 완료 여부, 재요청, 전체 데이터 등 엄청나게 많은 값이 하나의 객체 형태로 반환이 되었다.
-
 물론 커스텀 훅을 추상화를 잘못 하거나 역할이 비대해진 이유도 있겠지만.. 😭
 
 만약 어쩔 수 없는 상황이었다면 저 많은 값들을 가져오는 최적의 방법으로는 아마 객체 형태가 가장 편하다고 생각된다.
 
 앞서 보았던 배열 형태의 구조 분해 할당의 경우를 보면, 반환에 대한 순서가 명시해야한다.
-
-즉, useState에 대한 반환값에 `index`가 있다는 의미다.
+즉, useState의 반환값에 `index`가 있다는 의미다.
 
 하지만 객체는 그렇지 않다.
 
