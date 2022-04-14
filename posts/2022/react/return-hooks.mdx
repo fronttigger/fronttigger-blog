@@ -10,6 +10,8 @@ description: '가는 말이 고와야 오는 말이 곱다' # required
 thumbnailImg: '/thumbnail/2022/04/react/react-hook.png' # required
 ---
 
+import Image from './src/components/image'
+
 자바스크립트 함수는 하나의 값을 반환한다.
 
 최근에는 ES6 이상의 문법을 사용하게 되면서 하나의 값에서 [**구조 분해 할당**](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)을 통해 값을 해체하는 작업을 하여 하나의 값을 여러개의 변수에 담아 활용할 수 있게 되었다.
@@ -58,7 +60,7 @@ export default function App() {
 ```
 
 <br />
-<img src="/images/2022/04/react/bad.png" alt="bad" style={{ display: 'block', margin: '0 auto' }} />
+<Image src="/images/2022/04/react/bad.png" alt="bad" maxWidth="60%" />
 
 별거 아닌 것 같지만 생각보다 너무 읽기가 힘들다..
 
@@ -90,11 +92,7 @@ export default function App() {
 ```
 
 <br />
-<img
-  src="/images/2022/04/react/cool.png"
-  alt="cool"
-  style={{ display: 'block', margin: '0 auto' }}
-/>
+<Image src="/images/2022/04/react/cool.png" alt="cool" maxWidth="60%" />
 
 갑자기 편안- 해진다.
 
