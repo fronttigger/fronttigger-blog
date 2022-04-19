@@ -1,14 +1,16 @@
 ---
-title: npm link를 통해 심볼릭 링크 만들기 #required
+title: npm link를 통해 심볼릭 링크 활용하기 (feat. 실시간 테스트) #required
 tags:
   - npm
   - link
   - symlink
 published: true # required
-date: '2022. 4. 19' # required
-description: '' # required
-thumbnailImg: '/thumbnail/2022/03/release/canary.png' # required
+date: '2022. 4. 20' # required
+description: '세상에 나쁜 테스트는 없다' # required
+thumbnailImg: '/thumbnail/2022/04/npm/npm-link.png' # required
 ---
+
+import Image from './src/components/image'
 
 현재 회사에서 디자인 시스템을 구축 중이다.
 
@@ -55,7 +57,7 @@ npm link {생성한 심링크 프로젝트명}
 
 이전에 npm link 명령어를 통해 생성했던 프로젝트명을 명시해주면 심링크를 사용하게 된다.
 
-이미지
+<Image src="/images/2022/04/npm/symlink-nodemodules.png" alt="symlink" />
 
 이렇게 되면 두 프로젝트간에 심링크가 연결된 것으로 이제 로컬에서 실시간으로 수정된 사항이 바로 반영되며 테스트를 할 수 있는 환경이 마련된다.
 
@@ -63,7 +65,7 @@ npm link {생성한 심링크 프로젝트명}
 
 심링크를 이상없이 가져왔다면 이제 직접 실시간으로 수정시 잘 반영되는지 테스트를 해봐야한다.
 
-이미지
+<Image src="/images/2022/04/npm/symlink-test.gif" alt="symlink test" width="100%" />
 
 수정을 하고 프로젝트를 build를 하면 심링크를 사용한 프로젝트에 바로 반영이 되는 모습을 볼 수 있다.
 
