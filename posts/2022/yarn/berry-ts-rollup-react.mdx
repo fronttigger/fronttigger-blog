@@ -106,3 +106,51 @@ yarn berry의 의존성은 node_modules와는 다르게 `zipFS` 형태로 관리
 ```
 
 여기까지 진행했다면 yarn berry를 통한 패키지 매니징 준비는 끝났다.
+
+## Typescript Setup
+
+yarn berry에서 타입스크립트를 사용하기 위해서는 추가적인 작업이 필요하다.
+
+이전에는 node_modules에 있는 type를 받아왔지만 현재는 zip 형태로 되어있기 때문이다.
+
+그렇기 때문에 vscode 기준에서는 **zipFS Plugin을 설치**해주어야 정상적으로 zip 형태를 읽어올 수 있다.
+
+### tsconfig.json 생성
+
+가장 기본이 되는 tsconfig.json을 생성한다.
+
+```bash
+tsc -init
+```
+
+이후 파일을 프로젝트 기호에 맞게 수정한다.
+
+### typescript 의존성 설치
+
+```bash
+yarn add -D typescript @types/react @types/react-dom
+```
+
+자 여기까지 설치해도 아직 타입에 관련된건 전부 빨간줄이 뜨고 있을 것이다.
+
+@@@불편 짤 이미지@@@
+
+지극히 정상이니 조금만 참자
+
+### 에디터 SDK 설치
+
+PnP를 위해서 에디터별로 [SDK를 설치](https://yarnpkg.com/getting-started/editor-sdks)해야한다. vscode로 셋업을 진행했기 때문에 해당 명령어는 아래와 같다.
+
+```bash
+yarn dlx @yarnpkg/sdks vscode
+```
+
+위 명령어를 작성하고 문제가 없다면 `.yarn/sdks` 디렉토리가 생성 되었을 것이고, 사진과 같은 안내창이 뜬다.
+
+@@@이미지@@@
+
+이는 해당 프로젝트에서 사용할 typescript 버전 허용 여부를 결정하는 부분인데 **Allow**를 선택하면 방금 추가된 typescript sdk를 사용하게 된다. (Allow 누르지 않으면 큰코 다침.. 🤥)
+
+누르면 지금껏 눈을 힘들게 했던 빨간줄이 사라질 것이다.
+
+@@@편안 짤 이미지@@@
