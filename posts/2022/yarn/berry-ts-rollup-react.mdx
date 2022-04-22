@@ -154,3 +154,10 @@ yarn dlx @yarnpkg/sdks vscode
 누르면 지금껏 눈을 힘들게 했던 빨간줄이 사라질 것이다.
 
 @@@편안 짤 이미지@@@
+
+## Rollup Setup
+
+rollup을 사용한 이유는 ES Module 형태로 번들링을 하여 Tree Shaking을 지원하기 위함이다.
+
+만약 디자인 시스템을 사용하는 프로젝트에서 Button 컴포넌트만 사용한다면 나머지 필요하지 않은 코드들은 빌드될 필요가 없다. ❌
+그래서 ESM 형태로 바로 번들링이 되는 rollup 사용했다.
