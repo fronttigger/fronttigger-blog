@@ -16,14 +16,14 @@ import Image from './src/components/image'
 
 현재 사내에서는 디자인 시스템에 대한 관심이 핫하다. 🔥
 
-최근 회사 전반적인 부분에 대한 큰 개편이 이루어졌고 이에 맞춰서 방향성이 나왔는데, 이 방향성에 대해서 앞으로 어떻게 개발해야할지 이야기가 나오다가 이전부터 숙원사업이었던 디자인 시스템을 본격적으로 추진하여 앞으로의 개발에 활용하자는 결론이 나왔다.
+최근 회사 전반적인 부분에 대한 큰 개편이 이루어졌고 이에 맞춰서 방향성이 나왔는데, 이 방향성에 대해서 앞으로 어떻게 앞으로 개발해야할지 이야기가 나오다가 이전부터 숙원사업이었던 디자인 시스템을 본격적으로 추진하여 앞으로의 개발에 활용하자는 결론이 나왔다.
 
 사실 이전부터 디자인 시스템은 존재했지만 유명무실한 상태였고 특히나 웹 프로젝트에 사용되는 디자인 시스템이 구현되어있지도 않았고 컴포넌트 작업시 디자인 참고 정도로 사용되는 수준이었다.
 
 그래서 이번 기회에 개편 방향성에 맞추어 정식 프로젝트(?)로 삼고 진행하기로 결정되었다.
 
-여러가지 기술적인 부분들을 고민하다가 현재 웹 프로젝트의 용량, 빌드 속도가 굉장히 느리다는 부분을 인지하였고 이 부분에 대한 인사이트를 얻어 여러가지를 찾아본 결과
-`yarn berry`를 활용한 패키지 매니징을 통해 용량 감소, 빌드 개선 등의 여러 경험을 공유한 [아티클](https://toss.tech/article/node-modules-and-yarn-berry)들을 보았다.
+여러가지 기술적인 부분들을 고민하다가 현재 웹 프로젝트의 용량, 빌드 속도가 굉장히 느리다는 부분을 인지하였고
+이 부분에 대한 인사이트를 얻어 여러가지를 찾아본 결과 yarn berry를 활용한 패키지 매니징을 통해 용량 감소, 빌드 개선 등의 여러 경험을 공유한 [아티클](https://toss.tech/article/node-modules-and-yarn-berry)들을 보았다.
 
 그래서 결론은 yarn berry를 사용하여 현재 웹 프로젝트에서 사용중인 typescript와 react로 디자인 시스템을 구현하기로 하였다.
 
@@ -31,13 +31,13 @@ import Image from './src/components/image'
 
 ## Yarn Berry를 도입한 이유
 
-일단 앞서 서론에서 간단하게 공유했지만 현재 서비스 중인 웹 프로젝트의 역사가 오래되었고 모든 서비스가 하나의 레파지토리에 들어가 있어서 규모가 매우 비대해진 상태다.
+일단 앞서 서론에서 간단하게 공유했지만 현재 서비스 중인 웹 프로젝트의 역사가 오래되었고 모든 서비스가 하나의 레파지토리에 들어가 있어서 규모가 매우 비대해진 상태다.
 
 최근 대규모 프로젝트를 진행하며 이전의 레거시를 전부 걷어내지 못한 상황에서 많은 코드들이 작성되었고 이를 유지보수 하면서 걷어내야 했지만 생각만큼 쉽게 걷어내지 못해 꽤나 많은 양의 레거시를 묻어두게 되었다.
 
-물론 이 말고도 여러가지의 이유가 많겠지만 이런 문제들이 하나씩 쌓여 결국 빌드와 CI 시간까지 영향이 갔고 특히 CI의 경우 10분 내외로 시간이 걸렸다.
+물론 이 말고도 여러가지의 이유가 많겠지만 이런 문제들이 하나씩 쌓여 결국 빌드와 CI 시간까지 영향이 갔고 한 번 개발을 완료한 부분을 레파지토리에 올릴 때 대략 10분 내외로 시간이 걸렸다. 😇
 
-그래서 이런 문제들을 해결해줄 Yarn Berry에 눈길이 갔고, 앞으로는 새로운 프로젝트부터 기존 프로젝트까지 마이그레이션 해보자는 목표를 가지고 있다.
+그래서 이런 문제들을 해결해줄 수 있는 Yarn Berry에 눈길이 갔고, 앞으로는 새로운 프로젝트부터 기존 프로젝트까지 마이그레이션 해보자는 목표를 가지고 있다.
 
 ## Yarn Berry Setup
 
@@ -128,14 +128,14 @@ tsc -init
 ### typescript 의존성 설치
 
 ```bash
-yarn add -D typescript @types/react @types/react-dom
+yarn add -D typescript @types/react @types/react-dom tslib
 ```
 
 자 여기까지 설치해도 아직 타입에 관련된건 전부 빨간줄이 뜨고 있을 것이다.
 
-@@@불편 짤 이미지@@@
+@@ 불편 짤 @@
 
-지극히 정상이니 조금만 참자
+지극히 정상이다.
 
 ### 에디터 SDK 설치
 
@@ -147,17 +147,286 @@ yarn dlx @yarnpkg/sdks vscode
 
 위 명령어를 작성하고 문제가 없다면 `.yarn/sdks` 디렉토리가 생성 되었을 것이고, 사진과 같은 안내창이 뜬다.
 
-@@@이미지@@@
+@@ allow 짤 @@
 
 이는 해당 프로젝트에서 사용할 typescript 버전 허용 여부를 결정하는 부분인데 **Allow**를 선택하면 방금 추가된 typescript sdk를 사용하게 된다. (Allow 누르지 않으면 큰코 다침.. 🤥)
 
 누르면 지금껏 눈을 힘들게 했던 빨간줄이 사라질 것이다.
 
-@@@편안 짤 이미지@@@
+@@ 편안 짤 @@
+
+## Rollup을 사용한 이유
+
+rollup을 사용한 이유는 `ES Module` 형태로 번들링을 하여 [**Tree Shaking**](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)을 지원하기 위함이다.
+
+만약 디자인 시스템을 사용하는 프로젝트에서 Button 컴포넌트만 사용한다면 나머지 필요하지 않은 코드들은 빌드될 필요가 없다. ❌  
+그래서 ESM 형태로 바로 번들링이 되는 rollup 사용했다.
 
 ## Rollup Setup
 
-rollup을 사용한 이유는 ES Module 형태로 번들링을 하여 Tree Shaking을 지원하기 위함이다.
+먼저 Rollup에 관련된 의존성들을 설치한다.
 
-만약 디자인 시스템을 사용하는 프로젝트에서 Button 컴포넌트만 사용한다면 나머지 필요하지 않은 코드들은 빌드될 필요가 없다. ❌
-그래서 ESM 형태로 바로 번들링이 되는 rollup 사용했다.
+```bash
+yarn add -D rollup @rollup/plugin-babel @rollup/plugin-commonjs @rollup/plugin-node-resolve @rollup/plugin-typescript @rollup/plugin-url @svgr/rollup rollup-plugin-peer-deps-external @babel/runtime @babel/plugin-transform-runtime @babel/core
+```
+
+뭔가 엄청 많다.. 🤔
+
+그래도 막상 다 쓸모있는 친구들이니 안심하자
+
+### 디렉토리 구조 생성
+
+현재 구성하고 있는 디자인 시스템 기준은 src 내부에 각각의 컴포넌트들이 있고, 그 내부에 컴포넌트, 테스트, 스토리북 등의 파일들을 위치시킬 예정이다.
+
+구조를 간단하게 보면 대략 아래와 같다.
+
+```text
++-- .yarn
++-- lib [빌드된 결과물]
+|   +-- * [commonjs 결과물]
+|   +-- esm [ES Module 결과물]
+|   |   +-- *
++-- src
+|   +-- * [컴포넌트 디렉토리]
+|   |   +-- index.spec.tsx
+|   |   +-- index.stories.tsx
+|   |   +-- index.tsx
+|   +-- index.ts [export될 entry point]
++-- tsconfig.json
++-- tsconfig.esm.json
++-- rollup.config.js
++-- babelrc
++-- *
+```
+
+### rollup.config.js
+
+설치한 의존성들을 바탕으로 rollup을 본격적으로 설정해보자
+
+```javascript
+import fs from 'fs'
+import path from 'path'
+
+import babel from '@rollup/plugin-babel'
+import resolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import url from '@rollup/plugin-url'
+import svgr from '@svgr/rollup'
+import typescript from '@rollup/plugin-typescript'
+import peerDepsExternal from 'rollup-plugin-peer-deps-external'
+
+const extensions = ['.js', '.jsx', '.ts', '.tsx']
+
+// 번들링할 파일을 객체에 담는다.
+const inputs = fs.readdirSync('./src', { withFileTypes: true }).reduce((config, f) => {
+  if (f.isDirectory() && f.name !== 'stories') {
+    const name = f.name
+    const dir = `src/${name}`
+
+    const files = fs.readdirSync(dir).reduce((result, file) => {
+      if (file.match(/spec|test|stories/i)) {
+        return result
+      }
+
+      const filename = path.parse(file).name
+      result[`${name}/${filename}`] = `${dir}/${file}`
+
+      return result
+    }, {})
+
+    return { ...config, ...files }
+  }
+
+  return config
+}, {})
+
+const input = { ...inputs, index: './src/index.ts' }
+
+export default [
+  {
+    input,
+    // 번들할 포맷과 디렉토리를 특정 파일에 명시한다.
+    output: [
+      {
+        dir: 'lib',
+        format: 'cjs',
+        exports: 'named',
+      },
+    ],
+    external: [/@babel\/runtime/],
+    plugins: [
+      // peerDependencies에 있는 의존성들을 빌드에 포함시키지 않는다.
+      peerDepsExternal(),
+      // babel 설정을 할 수 있도록 도와준다.
+      babel({
+        extensions,
+        babelHelpers: 'runtime',
+        skipPreflightCheck: true,
+        exclude: /node_modules/,
+      }),
+      // 외부 라이브러리 사용 및 ts, tsx 지원을 해준다.
+      resolve(),
+      // Commonjs 형태의 코드를 ES6로 변환하여 빌드에 포함되도록 해준다.
+      commonjs(),
+      // 타입스크립트를 사용할 수 있게 해준다.
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: true,
+        sourceMap: false,
+      }),
+      // data-URI 형태로 svg, png, jpg 파일 등을 불러와서 사용 할 수 있게 해준다.
+      url(),
+      // SVG를 컴포넌트 형태로 불러와서 사용 할 수 있게 해준다.
+      svgr(),
+    ],
+  },
+  {
+    input,
+    output: [
+      {
+        dir: 'lib/esm',
+        format: 'esm',
+        exports: 'named',
+      },
+    ],
+    external: [/@babel\/runtime/],
+    plugins: [
+      peerDepsExternal(),
+      babel({
+        extensions,
+        babelHelpers: 'runtime',
+        skipPreflightCheck: true,
+        exclude: /node_modules/,
+      }),
+      resolve(),
+      commonjs(),
+      typescript({
+        tsconfig: './tsconfig.esm.json',
+        declaration: true,
+        sourceMap: false,
+      }),
+      url(),
+      svgr(),
+    ],
+  },
+]
+```
+
+번들링은 commonjs, esm 두가지 형태로 제공했다.
+
+이는 package.json에서 main, module 두가지 속성을 활용하여 어떤 부분을 사용할지 명시가 가능하다.
+
+그리고 번들링 명령어를 추가해준다.
+
+```json
+// package.json
+{
+  "name": "design-system",
+  "version": "1.0.0",
+  "description": "yarn berry design-system project",
+  "main": "./lib/index.js",
+  "module": "./lib/esm/index.js",
+  "scripts": {
+    "build": "rollup -c"
+  }
+  // do something..
+}
+```
+
+여기까지 진행했다면 번들링을 할 준비까지 완료가 되었다.
+
+이제 React를 추가하여 번들링을 해보자
+
+## React Setup
+
+리액트는 현재 날짜 기준(22.04.24) [18 버전](https://reactjs.org/blog/2022/03/29/react-v18.html)이 정식 배포가 된 상태다.
+
+하지만 테스팅 라이브러리를 18 기준으로 해본 결과 [React.createroot](https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-client-rendering-apis) 이슈로 인해 테스트가 정상적으로 통과가 되지 않는 것을 보고 17 기준으로 진행했다.
+
+디자인 시스템은 내부에서 동작하는 것이 아닌 외부에서 동작시킬 프로젝트다.
+
+그래서 외부에서 리액트의 어떤 버전을 사용해야할지 명시한다.
+
+```bash
+yarn add -P react@16.8.0 react-dom@16.8.0
+```
+
+react와 react-dom을 peerDependencies에 추가한다.
+
+그리고 16.8 이상을 설치할 수 있도록 변경해준다.
+
+```json
+// package.json
+"peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+}
+```
+
+자 그러면 리액트로 간단한 컴포넌트를 구현해보자
+
+### 버튼 컴포넌트 구현
+
+```javascript
+// src/button/index.tsx
+
+import React from 'react'
+
+function Button() {
+  return <button>버튼</button>
+}
+
+export default Button
+```
+
+3초만에 작성한 버튼 컴포넌트다.
+
+이제 이걸 번들링의 entry point에 추가해준다.
+
+```javascript
+// src/index.ts
+
+export { default as Button } from './Button'
+```
+
+자 진짜 모든 번들링 준비가 끝났다.
+
+이제 대망의 명령어를 작성하자
+
+```bash
+yarn build
+```
+
+@@ 성공 짤 @@
+
+이 아름다운 자태가 보이는가..
+
+정상적으로 버튼 컴포넌트가 commonjs, esm 디렉토리로 분리되어 번들링 되었다.
+이제 이 번들링 된 컴포넌트가 밖에서 잘 사용되는지 확인해보자
+
+⚠️ 현재 작업한 디자인 시스템 프로젝트는 로컬에만 존재하기 때문에 이를 테스트 하기 위해서는 [심볼릭 링크](https://tigger.dev/2022/npm/link)와 같은 추가 작업이 필요하다.
+만약 npm에 배포가 가능하다면 해당 방법으로 해도 무방하다.
+
+이제 사용하고 싶은 프로젝트에 설치 후 불러오자
+
+```javascript
+// 디자인 시스템을 사용할 프로젝트
+
+import React from 'react'
+import { Button } from 'design-system'
+
+function ButtonPage() {
+  return <Button />
+}
+
+export default ButtonPage
+```
+
+만든 버튼 컴포넌트를 불러와서 사용하면?!
+
+@@ 버튼 짤 @@
+
+만든 버튼이 잘 불러와진다! 🎉
+
+여기까지 해서 기본적인 환경 구성을 진행했다.
+위의 기술 스택으로서는 가장 기본적인 틀이라고 생각했고 여기서 추가적으로 세팅할 부분은 프로젝트 의도와 기획에 맞게 진행하여 요리조리 입맛에 맛게 골라넣으면 된다. 👨🏻‍💻
