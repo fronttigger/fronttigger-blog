@@ -12,7 +12,8 @@ globalStyle(`${ol} > li`, {
   position: 'relative',
   paddingInlineStart: theme.space.xlarge,
   color: theme.colors.post.ol,
-  fontSize: theme.fontSize.medium,
+  fontSize: theme.fontSize.xsmall,
+  lineHeight: 1.2,
 })
 
 globalStyle(`${ol} > li:before`, {
@@ -20,6 +21,6 @@ globalStyle(`${ol} > li:before`, {
   content: 'counter(list-number) "."',
   position: 'absolute',
   left: 0,
-  fontSize: theme.fontSize.medium,
+  fontSize: theme.fontSize.xsmall,
   fontWeight: theme.fontWeight.semiBold,
 })
