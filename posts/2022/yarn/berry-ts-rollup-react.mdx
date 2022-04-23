@@ -133,9 +133,9 @@ yarn add -D typescript @types/react @types/react-dom tslib
 
 자 여기까지 설치해도 아직 타입에 관련된건 전부 빨간줄이 뜨고 있을 것이다.
 
-@@ 불편 짤 @@
+<Image src="/images/2022/04/react/bad.png" alt="bad" maxWidth="60%" />
 
-지극히 정상이다.
+하지만 지극히 정상이다.
 
 ### 에디터 SDK 설치
 
@@ -147,13 +147,13 @@ yarn dlx @yarnpkg/sdks vscode
 
 위 명령어를 작성하고 문제가 없다면 `.yarn/sdks` 디렉토리가 생성 되었을 것이고, 사진과 같은 안내창이 뜬다.
 
-@@ allow 짤 @@
+<Image src="/images/2022/04/yarn/allow.png" alt="allow typescript version" width="100%" />
 
 이는 해당 프로젝트에서 사용할 typescript 버전 허용 여부를 결정하는 부분인데 **Allow**를 선택하면 방금 추가된 typescript sdk를 사용하게 된다. (Allow 누르지 않으면 큰코 다침.. 🤥)
 
 누르면 지금껏 눈을 힘들게 했던 빨간줄이 사라질 것이다.
 
-@@ 편안 짤 @@
+<Image src="/images/2022/04/react/cool.png" alt="cool" maxWidth="60%" />
 
 ## Rollup을 사용한 이유
 
@@ -342,6 +342,7 @@ export default [
 리액트는 현재 날짜 기준(22.04.24) [18 버전](https://reactjs.org/blog/2022/03/29/react-v18.html)이 정식 배포가 된 상태다.
 
 하지만 테스팅 라이브러리를 18 기준으로 해본 결과 [React.createroot](https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-client-rendering-apis) 이슈로 인해 테스트가 정상적으로 통과가 되지 않는 것을 보고 17 기준으로 진행했다.
+(만약 테스트를 도입하지 않는다면 18 버전으로 진행해도 무방하다.)
 
 디자인 시스템은 내부에서 동작하는 것이 아닌 외부에서 동작시킬 프로젝트다.
 
@@ -391,13 +392,13 @@ export { default as Button } from './Button'
 
 자 진짜 모든 번들링 준비가 끝났다.
 
-이제 대망의 명령어를 작성하자
+이제 대망의 빌드 명령어를 작성하자
 
 ```bash
 yarn build
 ```
 
-@@ 성공 짤 @@
+<Image src="/images/2022/04/yarn/bundled.png" alt="success bundled" maxWidth="50%" />
 
 이 아름다운 자태가 보이는가..
 
@@ -424,9 +425,11 @@ export default ButtonPage
 
 만든 버튼 컴포넌트를 불러와서 사용하면?!
 
-@@ 버튼 짤 @@
+<Image src="/images/2022/04/yarn/success-button.png" alt="success render" maxWidth="40%" />
 
 만든 버튼이 잘 불러와진다! 🎉
 
 여기까지 해서 기본적인 환경 구성을 진행했다.
-위의 기술 스택으로서는 가장 기본적인 틀이라고 생각했고 여기서 추가적으로 세팅할 부분은 프로젝트 의도와 기획에 맞게 진행하여 요리조리 입맛에 맛게 골라넣으면 된다. 👨🏻‍💻
+위의 기술 스택으로서는 가장 기본적인 틀이라고 생각했고 여기서 추가적으로 세팅할 부분은 프로젝트 의도와 기획에 맞게 진행하여 요리조리 입맛에 맛게 골라넣으면 된다! 👨🏻‍💻
+
+아마 다음 글은 추가적으로 세팅한 styled-components, jest, storybook이 될 것 같다. (아님 말고 😙)
