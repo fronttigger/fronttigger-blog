@@ -11,13 +11,14 @@ globalStyle(`${ul} > li`, {
   position: 'relative',
   paddingInlineStart: theme.space.xlarge,
   color: theme.colors.post.ul.color,
-  fontSize: theme.fontSize.medium,
+  fontSize: theme.fontSize.xsmall,
+  lineHeight: 1.2,
 })
 
 globalStyle(`${ul} > li:before`, {
   content: '',
   position: 'absolute',
-  top: '6px',
+  top: '7px',
   left: 0,
   width: '6px',
   height: '6px',
