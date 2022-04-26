@@ -327,7 +327,7 @@ export default [
   "main": "./lib/index.js",
   "module": "./lib/esm/index.js",
   "scripts": {
-    "build": "rollup -c"
+    "build": "tsc --emitDeclarationOnly && NODE_ENV=development rollup -c"
   }
   // do something..
 }
@@ -406,6 +406,8 @@ yarn build
 이제 이 번들링 된 컴포넌트가 밖에서 잘 사용되는지 확인해보자
 
 ⚠️ 현재 작업한 디자인 시스템 프로젝트는 로컬에만 존재하기 때문에 이를 테스트 하기 위해서는 [심볼릭 링크](https://tigger.dev/2022/npm/link)와 같은 추가 작업이 필요하다.
+([Git URL](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#git-urls-as-dependencies)과 같은 방법도 있다.)
+
 만약 npm에 배포가 가능하다면 해당 방법으로 해도 무방하다.
 
 이제 사용하고 싶은 프로젝트에 설치 후 불러오자
