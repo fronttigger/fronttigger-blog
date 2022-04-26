@@ -89,6 +89,8 @@ export default Button
 
 버튼 완성!
 
+이걸 이제 프로젝트에서 실행을 시켜보자
+
 ```
 import { Button } from '@fronttigger/design-system';
 
@@ -110,3 +112,176 @@ export default App;
 완벽하게 의도한대로 동작한다!
 
 이제 styled-components를 통해 컴포넌트를 개발할 수 있다.
+
+### Testing Setup
+
+리액트에서도 여러가지 컴포넌트 테스팅 라이브러리가 있지만 가장 대표적인 [react-testing-library](https://testing-library.com/docs/react-testing-library/intro/)가 있다.
+
+위 라이브러리를 활용하여 리액트 컴포넌트 테스트 환경을 구성해보자
+
+#### 의존성 설치
+
+먼저 위 라이브러리를 사용하기 위해서는 [jest](https://jestjs.io/)가 필요하다.
+
+```
+yarn add -D jest babel-jest ts-jest @types/jest identity-obj-proxy
+```
+
+위 의존성을 모두 설치했다면 react-testing-library 관련된 의존성을 설치하자
+
+```
+yarn add -D @testing-library/dom @testing-library/jest-dom @testing-library/react @testing-library/react-hooks @testing-library/user-event @types/testing-library__jest-dom
+```
+
+벌써 엄청난 양의 라이브러리를 추가했지만 아직 멀었다.
+
+그 이유는 테스트는 개발환경에서 작성하는 것이기 때문에 리액트가 개발환경에서 테스트될 수 있도록 babel과 react에 관련된 의존성을 또 추가해줘야한다. 😇
+
+```
+yarn add -D @babel/preset-env @babel/preset-react babel-preset-react-app react@17.0.2 react-dom@17.0.2 react-is
+```
+
+자 이제 거의 다왔다.
+
+#### babel 설정
+
+방금 설치한 babel을 설정한다.
+
+```
+{
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-react",
+    ["react-app", { "flow": false, "typescript": true }]
+  ],
+  "plugins": ["babel-plugin-styled-components"]
+}
+```
+
+#### jest 설정
+
+자 이제 테스트의 대망의 마지막 설정 단계다.
+
+jest를 사용하기 위해서는 두가지 파일이 필요한데 \`jest.config.js\`와 \`jest.setup.js\`다.
+
+#### jest.setup.js
+
+```
+import '@testing-library/jest-dom'
+```
+
+#### jest.config.js
+
+```
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['./jest.setup.js'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleDirectories: ['src'],
+  testRegex: '(/__(tests|specs)__/.*|(\\.|/)(test|spec))\\.([tj]sx?)$',
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.tsx?$': 'ts-jest',
+  },
+  moduleNameMapper: {
+    '\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+      'identity-obj-proxy',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  },
+  globals: {
+    __PATH_PREFIX__: '',
+    'ts-jest': {
+      diagnostics: false,
+      tsconfig: 'tsconfig.jest.json',
+      babelConfig: true,
+    },
+  },
+}
+```
+
+jest를 활용할 tsconfig를 따로 분리하였다. (tsconfig.json으로 한 번에 처리해도 무방하다.)
+
+이 두가지 파일을 통해 test 명령에 대한 설정값을 제공한다.
+
+#### 테스트
+
+이제 임의의 컴포넌트를 구현하고 test를 진행해보자
+
+```
+// src/Accordion/index.spec.tsx
+
+import React, { useState } from 'react'
+import { render, screen } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react-hooks'
+import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom'
+
+import Accordion from './index'
+
+describe('Accordion', () => {
+  test('제목 prop인 title에 "유의사항"을 입력하면 제목에 "유의사항"이 출력된다.', () => {
+    render(<Accordion title="유의사항" />)
+
+    const titleElement = screen.getByText('유의사항')
+    expect(titleElement).toHaveTextContent('유의사항')
+  })
+
+  test('최초 상태의 아코디언을 클릭하면 입력한 아코디언 상세 내용인 "조심하세요"가 보여진다.', () => {
+    render(<Accordion>조심하세요</Accordion>)
+
+    const contentElement = screen.getByRole('button')
+    userEvent.click(contentElement)
+
+    const detailElement = screen.getByText('조심하세요')
+    expect(detailElement).toHaveTextContent('조심하세요')
+  })
+
+  test('아코디언의 이벤트를 외부에서 받아왔을 때 상세 내용인 "조심하세요"가 보여진다.', () => {
+    const { result } = renderHook((value) => useState(!!value), {
+      initialProps: false,
+    })
+
+    const handleIsOpenToggle = () => {
+      result.current[1]((state) => !state)
+    }
+
+    const { rerender } = render(
+      <Accordion isOpen={result.current[0]} onToggle={handleIsOpenToggle}>
+        조심하세요
+      </Accordion>,
+    )
+
+    expect(result.current[0]).toBe(false)
+
+    act(() => {
+      handleIsOpenToggle()
+    })
+
+    rerender(
+      <Accordion isOpen={result.current[0]} onToggle={handleIsOpenToggle}>
+        조심하세요
+      </Accordion>,
+    )
+
+    expect(result.current[0]).toBe(true)
+
+    const detailElement = screen.getByText('조심하세요')
+    expect(detailElement).toHaveTextContent('조심하세요')
+  })
+})
+```
+
+이제 테스트를 돌려보자
+
+```
+yarn jest
+```
+
+@@ 테스트 짤 @@
+
+@@ 편안 짤 @@
+
+드디어 길고 긴 테스트를 위한 여정이 끝났다. (테스트 하기도 전에 지쳐버림.. 😭)
+
+이제 마지막 단계인 **Storybook**을 추가해보자
