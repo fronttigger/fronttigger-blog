@@ -1,10 +1,13 @@
 ---
-title: yarn berry + typescript + rollup + react 환경 구성하기 (feat. 디자인 시스템) #required
+title: 디자인 시스템 개발 환경 구성하기 - 1 (feat. yarn berry + typescript + rollup + react) #required
 tags:
-  - yarn
+  - yarn berry
   - typescript
   - rollup
   - react
+  - styled-components
+  - jest
+  - storybook
   - designsystem
 published: true # required
 date: '2022. 4. 24' # required
@@ -112,10 +115,6 @@ yarn berry의 의존성은 node_modules와는 다르게 `zipFS` 형태로 관리
 그래서 이런 문제를 해결하기 위해 **.yarnrc.yml** 파일에 `enableScripts` 속성을 설정해줘야한다.
 
 ```yml
-plugins:
-  - path: .yarn/plugins/@yarnpkg/plugin-typescript.cjs
-    spec: '@yarnpkg/plugin-typescript'
-
 yarnPath: .yarn/releases/yarn-3.2.0.cjs
 
 enableScripts: false
