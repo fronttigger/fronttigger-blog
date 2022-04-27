@@ -105,7 +105,25 @@ yarn berry의 의존성은 node_modules와는 다르게 `zipFS` 형태로 관리
 .pnp.*
 ```
 
-여기까지 진행했다면 yarn berry를 통한 패키지 매니징 준비는 끝났다.
+그런데 여기서 만약 의존성들 중에 **설치 스크립트**가 존재하는 의존성이라면 [Zero-Install](https://yarnpkg.com/features/zero-installs/#how-do-you-reach-this-zero-install-state-youre-advocating-for)이 작동하지 않을 수도 있다.
+
+설치 스크립트가 있는 경우 **.yarn/unplugged** 경로에 생성되는데 이는 .zip이 아닌 node_modules에서 보던 방식과 동일하다.
+
+그래서 이런 문제를 해결하기 위해 **.yarnrc.yml** 파일에 `enableScripts` 속성을 설정해줘야한다.
+
+```yml
+plugins:
+  - path: .yarn/plugins/@yarnpkg/plugin-typescript.cjs
+    spec: '@yarnpkg/plugin-typescript'
+
+yarnPath: .yarn/releases/yarn-3.2.0.cjs
+
+enableScripts: false
+```
+
+enableScripts 값을 false로 변경해주면서 의존성에 있는 스크립트를 동작시키지 않으면 cache 디렉토리에 생성되게 된다.
+
+여기까지 진행했다면 yarn berry를 통한 패키지 매니징 준비는 끝났다. 👍
 
 ## Typescript Setup
 
