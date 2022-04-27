@@ -18,6 +18,7 @@ export default function PageSEO({ title, url }: { title: string; url: string }) 
       <meta property="og:type" content="blog" />
       <meta property="og:url" content={url} />
       <link rel="canonical" href={url} />
+      <meta name="google-site-verification" content="TKIdJnriiDuVdbn-ip2gffaB8oEzddxMZyE4H-jB4bY" />
     </Head>
   )
 }
