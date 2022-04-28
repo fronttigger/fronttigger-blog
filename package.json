@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "sitemap": "ts-node --project tsconfig.node.json ./src/utils/siteMap.ts",
+    "sitemap": "ts-node --project tsconfig.node.json ./src/utils/sitemap.ts",
     "build": "npm run sitemap && next build && next export",
     "start": "next",
     "test": "jest",
