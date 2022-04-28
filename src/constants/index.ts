@@ -1,4 +1,3 @@
-export const MESSAGE = 'Next Template Copiest'
 export const BLOG_THEME_KEY = 'fronttigger-blog-theme'
 export const LIGHT_MODE = 'LIGHT'
 export const DARK_MODE = 'DARK'
