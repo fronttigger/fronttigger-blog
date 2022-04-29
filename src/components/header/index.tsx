@@ -23,7 +23,7 @@ export default function Header({ theme, onChangeTheme }: HeaderProps) {
           <Link href="/">
             <div className={styles.logoContainer}>
               <div className={styles.imageContainer}>
-                <Image src="/logo.png" alt="tigger blog logo" width="48px" height="44px" />
+                <Image src="/logo.png" alt="fronttigger blog logo" width="48px" height="44px" />
               </div>
               <strong className={styles.title}>{config.author.name}</strong>
             </div>

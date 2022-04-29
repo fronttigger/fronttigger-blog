@@ -1,5 +1,5 @@
 export default {
-  url: 'https://tigger.dev',
+  url: 'https://fronttigger.dev',
   title: 'fronttigger의 블로그',
   subtitle: 'fronttigger',
   description: '프론트엔드에 대한 이야기를 공유해요',
