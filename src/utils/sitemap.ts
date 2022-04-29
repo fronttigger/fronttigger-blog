@@ -8,16 +8,16 @@ async function createSitemap() {
 
   const postUrls = slugs.map(
     (slug) => `<url>
-                 <loc>https://tigger.dev/${slug.year}/${slug.subject}/${slug.title}</loc>
+                 <loc>https://fronttigger.dev/${slug.year}/${slug.subject}/${slug.title}</loc>
                </url>`,
   )
 
   const sitemap = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://tigger.dev/posts</loc>
+        <loc>https://fronttigger.dev/posts</loc>
     </url>
     <url>
-        <loc>https://tigger.dev/about</loc>
+        <loc>https://fronttigger.dev/about</loc>
     </url>
         ${postUrls.join('\n')}
     </urlset>`.replace(/\n|\t/g, ' ')
