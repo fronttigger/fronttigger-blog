@@ -1,8 +1,8 @@
 {
-  "name": "next-template-copiest",
+  "name": "fronttigger-blog",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:copiest/next-template-copiest.git",
+  "repository": "https://github.com/copiest/fronttigger-blog",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
