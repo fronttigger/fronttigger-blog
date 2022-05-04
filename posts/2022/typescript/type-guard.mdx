@@ -1,0 +1,72 @@
+---
+title: 타입스크립트의 Assertion Function을 활용해 타입 가드 해보기 #required
+tags:
+  - typescript
+  - assert
+  - assertion function
+  - type guard
+published: true # required
+date: '2022. 5. 8' # required
+description: 'const 앞으로_평생할_게임 = "타입 디펜스"' # required
+thumbnailImg: '/thumbnail/2022/04/yarn/yarn-berry.png' # required
+---
+
+타입스크립트를 활용해 개발하다 보면 기존 자바스크립트만으로 개발할 때보다 안정성이 확실히 증가하는 것을 느낀다.
+
+컴파일 단계와 타입체킹 단계에서 타입스크립트 엔진이 어련히 알아서 타입 추론과 체크를 해주는 덕분에 우리는 타입스크립트가 시키는대로 조건만 맞추어 준다면 편안- 하게 개발이 가능하다. (물론 불편한 점들도 있지만.. 😇)
+
+하지만 타입스크립트의 타입에도 허점이 있다.
+바로 부분적으로 타입 보장이 안된다는 것이다.
+
+예를 들어보자
+
+## 재미난 현상 발견
+
+```typescript
+let nickname: null | string = 'fronttigger'
+
+function whatIsNicknameType() {
+  nickname // null | string
+
+  if (nickname == null) {
+    nickname // null
+    return
+  }
+
+  nickname // string
+}
+
+if (nickname != null) {
+  whatIsNicknameType()
+}
+```
+
+위 코드를 보면 뭔가 이상하다. 🤔
+
+분명 **whatIsNicknameType** 함수를 실행하는 조건은 nickname 변수가 `null`이 아닐 때 인데, 막상 함수 내부에서의 첫 번째 nickname은 null과 string 타입 두 개의 타입이다.
+
+뭔가 이상하지 않은가?
+
+바로 이런 부분에서 타입스크립트는 느슨하게 타입을 검사한다.
+
+이를 방지하기 위해 Node.js 에서는 `assert` 라는 함수를 사용한다.
+
+## Node.js 에서는?
+
+```javascript
+const assert = require('assert')
+
+function multiply(x, y) {
+  assert(typeof x === 'number')
+  assert(typeof y === 'number')
+
+  return x * y // number * number
+}
+
+multiply(2, 2) // 4
+multiply(3, '1') // AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value: assert(typeof y === 'number')
+```
+
+assert를 통해 특정 타입을 단언을 시킨 후 반환 값을 강제했다.
+
+만약 단언한 값이 들어오지 않을 경우 **AssertionError**를 던져낸다.
