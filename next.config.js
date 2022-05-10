@@ -9,6 +9,9 @@ const nextConfig = {
     path: '/',
   },
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  experimental: {
+    scrollRestoration: true,
+  },
 }
 
 module.exports = withVanillaExtract(nextConfig)
