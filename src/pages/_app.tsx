@@ -45,42 +45,6 @@ function App({ Component, pageProps }: AppProps) {
     }
   }, [])
 
-  useEffect((): void => {
-    window.history.scrollRestoration = 'auto'
-
-    const cachedScrollPositions: Array<[number, number]> = []
-    let shouldScrollRestore: null | { x: number; y: number }
-
-    Router.events.on('routeChangeStart', () => {
-      cachedScrollPositions.push([window.scrollX, window.scrollY])
-    })
-
-    Router.events.on('routeChangeComplete', () => {
-      if (shouldScrollRestore) {
-        const { x, y } = shouldScrollRestore
-        window.scrollTo(x, y)
-        shouldScrollRestore = null
-      }
-      window.history.scrollRestoration = 'auto'
-    })
-
-    Router.beforePopState(() => {
-      if (cachedScrollPositions.length > 0) {
-        const scrolledPosition = cachedScrollPositions.pop()
-        if (scrolledPosition) {
-          shouldScrollRestore = {
-            x: scrolledPosition[0],
-            y: scrolledPosition[1],
-          }
-        }
-      }
-      window.history.scrollRestoration = 'manual'
-      return true
-    })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       pageview(url)
