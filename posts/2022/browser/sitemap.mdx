@@ -11,9 +11,147 @@ description: '검색이 되면 안 되는 수준 낮은 블로그' # required
 thumbnailImg: '/thumbnail/2022/04/typescript/assertion-functions.png' # required
 ---
 
-이전 블로그는 티스토리를 사용을 하고 있어서 사이트맵과 같은 SEO 처리를 크게 다룰 일이 없었다.
-하지만 여차저차 블로그를 직접 만들게 되었고 만들고 보니 SEO 대응을 뒤늦게 해야겠다는 생각이 들었다.
+import Image from './src/components/image'
 
-물론 Next.js에서 기본적으로 제공하는 meta 정보와 SSG(Static Site Generation)를 통해서 어느정도는 커버가 가능하지만, 이외에 특정 브라우저에 대한 대응은 추가로 해주어야했다.
+이전 블로그는 티스토리를 사용을 하고 있어서 사이트맵과 같은 SEO 처리를 크게 다룰 일이 없었다.  
+하지만 여차저차 하다보니 블로그를 직접 만들게 되었고 만들고 보니 SEO 대응을 뒤늦게 해야겠다는 생각이 들었다.
 
-그래서 가장 기본적이고 구글에 내 존재를 인식시키기 위해 사이트맵(Sitemap)을 구현하기로 하였다.
+물론 Next.js에서 기본적으로 제공하는 meta 정보와 SSG(Static Site Generation)를 통해서 어느정도는 커버가 가능하지만, 이외에 특정 브라우저에 대한 대응은 추가로 해주어야했다.
+
+그래서 가장 기본적이고 구글에 내 존재를 인식시키기 위해 사이트맵(sitemap)을 구현하기로 하였다.
+
+구글에서는 친절하게 [공식문서](https://developers.google.com/search/docs/advanced/guidelines/get-started?hl=ko)로 차근차근 알려주고 있어서 이를 참조하여 진행했다.
+
+## sitemap.xml의 정체
+
+먼저 Sitemap을 구현하기 위해 어떻게 생긴 친구인지 알아보아야했다.
+
+그래서 이전 블로그였던 티스토리의 사이트맵을 열어보았다.
+
+```xml
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://junjangsee.tistory.com</loc>
+        <lastmod>2022-05-13T00:09:41+09:00</lastmod>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://junjangsee.tistory.com/category</loc>
+    </url>
+    <url>
+        <loc>https://junjangsee.tistory.com/category/Back-end</loc>
+    </url>
+    <url>
+        <loc>https://junjangsee.tistory.com/category/Front-end</loc>
+    </url>
+    // ....
+</urlset>
+```
+
+처음보는 태그들로 둘러싸인 화면을 볼 수 있었고 `loc`는 검색엔진에게 제공할 URL을 말한다.
+
+즉, sitemap.xml은 브라우저에 **어떤 URL을 크롤링**할지 정해주는 역할을 해준다.
+
+그래서 나는 lastmod, priority는 딱히 나누지 않고 loc만 제공하기로 하였다.
+
+## sitemap 구현
+
+현재 글은 약 25개 정도여서 직접 하드코딩으로 만들어도 문제가 없겠지만, 이를 글 작성할 때마다 추가하고 유지보수하는게 매우 귀찮을거라 생각했다.
+
+물론 [next-sitemap](https://www.npmjs.com/package/next-sitemap)과 같이 잘 되어있는 라이브러리도 있지만, 엄청 큰 서비스도 아니고 간단한 블로그용이어서 굳이 사용할 필요성을 못느꼈다.
+
+```typescript
+// sitemap.ts
+
+import fs from 'fs'
+
+import { getAllPosts } from './posts'
+
+async function createSitemap() {
+  const allPosts = await getAllPosts() // 글 전체를 가져온다.
+  const slugs = allPosts.map((post) => post.slug) // 글의 slug만 가져온다.
+
+  const postUrls = slugs.map(
+    (slug) => `<url>
+                 <loc>https://fronttigger.dev/${slug.year}/${slug.subject}/${slug.title}</loc>
+               </url>`,
+  ) // slug를 통해 글 URL들을 가진 배열을 생성한다.
+
+  const sitemap = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://fronttigger.dev/posts</loc>
+    </url>
+    <url>
+        <loc>https://fronttigger.dev/about</loc>
+    </url>
+        ${postUrls.join('\n')}
+    </urlset>`.replace(/\n|\t/g, ' ') // 글들을 그려낸다.
+
+  await fs.promises.writeFile('public/sitemap.xml', sitemap, {
+    encoding: 'utf-8',
+  }) // public/sitemap.xml 위치에 파일을 생성한다.
+}
+
+createSitemap() // 실행한다.
+```
+
+주석에 간단한 역할에 대해서 명시를 해놓았지만, 큰 틀은 전체 게시글에 대한 URL을 만들고 이를 sitemap.xml 파일에 녹여내는 것이다.
+
+자 그런데 다 만들고 나니 한가지 의문이 들었다.
+
+지금 만든 사이트맵 함수를 동작하는 시점은 언제로 잡아야할까? 🤔
+
+## sitemap 생성
+
+이 함수를 만든 이유가 일일이 글을 작성 이후에 수동으로 넣기 싫어서인데.. 그러면 배포 전 빌드타임에 이를 만들어주면 되지 않을까? 생각했다.
+
+그래서 ts-node를 활용해서 빌드 타임에 명령어를 실행하도록 처리했다.
+
+```json
+"scripts": {
+    "sitemap": "ts-node --project tsconfig.node.json ./src/utils/sitemap.ts",
+    "build": "npm run sitemap && next build && next export"
+}
+```
+
+이렇게 되면 배포 전 build시 sitemap을 생성할거고, 그 생성한 sitemap을 구글에서 크롤링해서 도메인에 대한 정보를 심어줄 수 있다.
+
+## robots.txt
+
+여기서 또 중요한 개념이 있다.
+
+바로 크롤러가 내 URL에 있는 정보들을 가져갈 수 있도록 등록을 해주어야하는데 이게 바로 `robots.txt`다.
+
+형태는 아래와 같다.
+
+```txt
+User-agent: *
+Allow: /
+Sitemap: https://fronttigger.dev/sitemap.xml
+```
+
+모든 userAgent에 대해서 허용하고 sitemap의 URL까지 알려주면 내 도메인에 대한 sitemap을 가져갈 수 있도록 오픈한 것이다.
+
+이제 배포를 해보자!
+
+<Image src="/thumbnail/2022/04/browser/sitemap.png" alt="sitemap" width="100%" />
+
+sitemap이 잘 나타나고 있다.
+
+하지만
+
+> 끝날 때까지 끝난게 아니다. ⚾️
+
+바로 [구글 서치 콘솔](https://search.google.com/search-console/welcome?hl=ko)에 URL에 대한 검증을 통해 등록하고, 사이트맵을 수동으로 등록해주어야 모든 과정이 끝난다. (여기서는 등록에 관한 설명은 하지 않는다. 별거 없음!)
+
+만약 등록이 완료되면 아래와 같이 처리된다.
+
+<Image
+  src="/thumbnail/2022/04/browser/search-console.png"
+  alt="google search console"
+  width="100%"
+/>
+
+여기까지 등록되면 sitemap에 대한 기본적인 처리가 끝이났다.
+
+이번 계기를 통해 어떤 형태로 구글에게 정보를 넘겨줘야할지 감을 잡는 좋은 기회였다. 👍
