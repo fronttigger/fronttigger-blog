@@ -1,0 +1,27 @@
+---
+title: React useState hook에 대한 고찰 #required
+tags:
+  - react
+  - hook
+  - useState
+published: true # required
+date: '2022. 5. 16' # required
+description: '상상도 못한 정체! ㄴㅇㄱ' # required
+thumbnailImg: '/thumbnail/2022/04/react-test/test-custom-hooks.png' # required
+---
+
+React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8](https://github.com/facebook/react/blob/main/CHANGELOG.md#1680-february-6-2019)에서 추가된 기능이다.
+
+현재 기준으로 대략 3년 정도 전에 등장했으며 첫 등장 이후로 최근까지 지속적으로 훅들이 개선되고 [추가](https://github.com/reactjs/rfcs/tree/useevent/text)되고 있다.
+
+그렇게 훅이 등장하면서 새롭게 만들어질 컴포넌트에 한해서 function component를 리액트 팀에서 [권장](https://ko.reactjs.org/docs/hooks-overview.html#but-what-is-a-hook)되고있다.
+
+이전에 class component에서 라이프 사이클에서 사용하던 메서드들과 비슷한 퍼포먼스를 제공하기 때문에 크게 불편함 없이
+
+그 이후로는 리액트에서 대부분의 컴포넌트를 구현할 때 function component로 구현하게 되었는데 여기서 주로 사용하는 훅 중에 단연코 가장 많이 사용되는 훅은 \`useState\`일 것이다.
+
+사실 리액트를 사용해 개발하면서 useState를 사용하지 않으면 사실 개발 자체가 불가능에 가깝지만.. 😇
+
+지금까지 사용하면서 정작 useState가 어떻게 구성되어있고, 어떻게 컴포넌트가 렌더링 되도 값이 초기화 되지 않고 남아있는지에 대해 문득 의문점이 들었다. 🤔
+
+그래서 useState가 어떻게 사용되고 있는지 예시를 보고 내부는 어떻게 구현되어있을지 생각해보려고 한다.
