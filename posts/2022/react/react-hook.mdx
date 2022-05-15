@@ -138,3 +138,153 @@ console.log(add()) // 4
 이는 외부에서 접근할 수 없지만 내부에서는 add 함수 실행을 통해 접근할 수 있다.
 
 바로 이런점을 활용하여 React Hook은 만들어졌다.
+
+### closure를 useState에 적용하기
+
+#### useState 구현
+
+```
+function useState(initVal) {
+  let _val = initVal
+  const state = () => _val
+  const setState = (newVal) => {
+    _val = newVal
+  }
+
+  return [state, setState]
+}
+
+const [count, setCount] = useState(1)
+console.log(count()) // 1
+setCount(2)
+console.log(count()) // 2
+```
+
+initVal을 선언 후 그 값을 반환하는 함수와 갱신하는 함수를 만들어 배열 형태로 반환하면 완성이다.
+
+그런데 우리는 리액트에서 useState 함수를 바로 가져와 사용하지 못한다.
+
+바로 React 모듈 안에 위치하기 때문인데, 아까 클로저 함수를 만들었던 방식대로 모듈 패턴을 사용해보자
+
+```
+const React = (function () {
+  function useState(initVal) {
+    let _val = initVal
+    const state = () => _val
+    const setState = (newVal) => {
+      _val = newVal
+    }
+
+    return [state, setState]
+  }
+
+  return { useState }
+})()
+
+const [count, setCount] = React.useState(1)
+console.log(count()) // 1
+setCount(2)
+console.log(count()) // 2
+```
+
+자 그러면 이제 훅을 실행할 컴포넌트를 만들어보자
+
+```
+function Component() {
+  const [count, setCount] = React.useState(1)
+
+  return {
+    render: () => console.log(count),
+    click: () => setCount(count)
+  }
+}
+```
+
+컴포넌트에서는 렌더링과 클릭에 대한 값을 반환해주고 있다.
+
+그러면 이제 컴포넌트를 어떻게 렌더링 해주어야할지 알려줘야한다.
+
+```
+const React = (function () {
+  function useState(initVal) {
+    let _val = initVal
+    const state = () => _val
+    const setState = (newVal) => {
+      _val = newVal
+    }
+
+    return [state, setState]
+  }
+
+  function render(Component) {
+    const C = Component()
+    C.render() // 컴포넌트 렌더링
+
+    return C
+  }
+
+  return { useState, render }
+})()
+
+function Component() {
+  const [count, setCount] = React.useState(1)
+
+  return {
+    render: () => console.log(count),
+    click: () => setCount(count),
+  }
+}
+
+var App = React.render(Component) // ƒ state() {}
+App.click()
+var App = React.render(Component) // ƒ state() {}
+```
+
+현재 함수가 찍히는 이유는 useState에서 state를 반환 함수로 보내주고 있기 때문이다.
+
+그래서 이를 해결하기 위해 \_val 변수를 밖으로 이동시킨다.
+
+그러면 이제 클로저의 형태는 유지하면서 initVal까지 처리가 가능해진다.
+
+```
+const React = (function () {
+  let _val
+
+  function useState(initVal) {
+    const state = _val || initVal
+    const setState = (newVal) => {
+      _val = newVal
+    }
+
+    return [state, setState]
+  }
+
+  function render(Component) {
+    const C = Component()
+    C.render()
+
+    return C
+  }
+
+  return { useState, render }
+})()
+
+function Component() {
+  const [count, setCount] = React.useState(1)
+
+  return {
+    render: () => console.log(count),
+    click: () => setCount(count + 1),
+  }
+}
+
+var App = React.render(Component) // 1
+App.click()
+var App = React.render(Component) // 2
+```
+
+자 여기까지 보면 useState 선언, 렌더링 후 click을 통한 state 변경이 값이 잘 유지된 채로 진행되고 있다는 것을 알 수 있다.
+
+하지만 useState가 **여러개(2개 이상)**가 사용된다면 정상적으로 동작하지 않게된다.
+
+### useState를 여러개 사용하기
