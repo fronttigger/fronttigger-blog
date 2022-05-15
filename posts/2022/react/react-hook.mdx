@@ -1,0 +1,24 @@
+---
+title: React Hook과 Closure의 관계 #required
+tags:
+  - react
+  - hook
+  - closure
+  - javascript
+published: true # required
+date: '2022. 5. 17' # required
+description: '상상도 못한 정체! ㄴㅇㄱ' # required
+thumbnailImg: '/thumbnail/2022/04/react-test/test-custom-hooks.png' # required
+---
+
+React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8.0](https://github.com/facebook/react/blob/main/CHANGELOG.md#1680-february-6-2019)에서 추가된 기능이다.
+
+현재 기준으로 대략 3년 정도 전에 등장했으며 첫 등장 이후로 최근까지 지속적으로 훅들이 개선되고 [추가](https://github.com/reactjs/rfcs/tree/useevent/text)되고 있다.
+
+그렇게 훅이 등장하면서 새롭게 만들어질 컴포넌트에 한해서 function component를 리액트 팀에서 [권장](https://ko.reactjs.org/docs/hooks-overview.html#but-what-is-a-hook)되고있다.
+
+그래서 현재 개발하는 대부분의 컴포넌트는 특별한 경우가 아니라면 대부분 함수 컴포넌트를 통해 개발하면서 훅을 사용하고 있을 것이고, 나 또한 그렇게 하고있다.
+
+그런데 그렇게나 많이 훅을 사용하여 개발하면서 정작 이 훅들이 어떻게 동작하는지에 대해선 생각해보지 못했다. 😅
+
+뜨끔하여 바로 관련된 아티클을 찾아보다가 2019년 JSConf에서 발표한 [유튜브 자료](https://www.youtube.com/watch?v=KJP1E-Y-xyo)가 있어 이를 시청하였고 (영어로 되어있어서 모든걸 이해한건 아니지만..) 정리해두면 많은 도움이 될 것 같았다.
