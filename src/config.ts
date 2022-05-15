@@ -39,7 +39,7 @@ export default {
   about: {
     title: '안녕하세요 👋 \n 저는 김준형입니다.',
     description:
-      '빠르게 바뀌어 가는 웹 생태계와 다양한 언어 및 라이브러리, 프레임워크에 관심이 많습니다. \n 현재 Typescript와 React.js, GraphQL Apollo의 환경에서 개발하고 있습니다.',
+      '빠르게 바뀌어 가는 웹 생태계와 다양한 언어 및 라이브러리, 프레임워크에 관심이 많습니다. \n 현재 Typescript와 React.js 환경에서 개발하고 있습니다.',
     experiences: [
       {
         company: 'Frientrip (Frip)',
