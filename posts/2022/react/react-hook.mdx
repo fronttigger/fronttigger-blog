@@ -22,3 +22,119 @@ React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8.0](http
 그런데 그렇게나 많이 훅을 사용하여 개발하면서 정작 이 훅들이 어떻게 동작하는지에 대해선 생각해보지 못했다. 😅
 
 뜨끔하여 바로 관련된 아티클을 찾아보다가 2019년 JSConf에서 발표한 [유튜브 자료](https://www.youtube.com/watch?v=KJP1E-Y-xyo)가 있어 이를 시청하였고 (영어로 되어있어서 모든걸 이해한건 아니지만..) 정리해두면 많은 도움이 될 것 같았다.
+
+### 클로저가 뭐지..?
+
+사실 리액트를 활용해 개발하고 있다면 자바스크립트를 통해 개발하고 있으므로 클로저라는 개념에 대해 들어본 경험이 있을 것이다.
+
+클로저에 대한 개념을 정말 여러가지로 정의하고 있지만 가장 쉽고 명확하게 정리한 개념이 있다.
+
+> en: closure makes it possible for a function to have "private" variables.  
+> ko: 클로저는 함수에 "사적인" 변수를 가질 수 있도록 해준다.
+
+우리가 평소에 들었던 \`캡슐화\` 라는 개념이 바로 여기서 등장한다. 어떻게 보면 \`상태\`를 가지고 있다고도 말할 수 있다.
+
+그러면 이러한 형태를 보이지 않는 경우는 어떤게 있을까?
+
+```
+let foo = 1 // global scope
+
+function add() {
+  foo += 1
+  return foo
+}
+
+console.log(add()) // 2
+console.log(add()) // 3
+console.log(add()) // 4
+```
+
+foo라는 변수에 1을 더해주는 add 함수가 있다.
+
+언뜻 보면 잘 동작하는 것 처럼 보이지만, 문제가 발생한다.
+
+```
+let foo = 1 // global scope
+
+function add() {
+  foo += 1
+  return foo
+}
+
+console.log(add()) // 2
+console.log(add()) // 3
+foo = 9999
+console.log(add()) // 10000
+```
+
+foo를 global에서 접근하여 임의로 수정이 가능하다는 점이다.
+
+그래서 깨달았다! 💡
+
+foo라는 변수를 밖에서 건들지 못하도록 해야겠구나!
+
+그래서 이렇게 변경해보았다.
+
+```
+function add() {
+  let foo = 1
+  foo += 1
+  return foo
+}
+
+console.log(add()) // 2
+console.log(add()) // 2
+foo = 9999 // 'foo' is not defined.
+console.log(add()) // 2
+```
+
+이제 밖에서 접근하진 못하지만 2값이 매번 출력된다.
+
+이는 add 함수를 호출할 때 항상 foo를 1로 초기화하기 때문이다.
+
+그래서 이렇게 다시 변경했다.
+
+```
+function getAdd() {
+  let foo = 1
+
+  return function () {
+    foo += 1
+
+    return foo
+  }
+}
+
+const add = getAdd()
+
+console.log(add()) // 2
+console.log(add()) // 3
+foo = 9999 // 'foo' is not defined.
+console.log(add()) // 4
+```
+
+이렇게 되면 getAdd 함수에서 add 함수를 반환해 함수를 add 함수를 호출할 때 마다 getAdd 함수에 선언되어있는 foo에 접근할 수 있다. 그리고 foo는 **변경된 값을 유지**한다.
+
+여기서 **모듈 패턴**을 통해서도 클로저를 만들 수 있다.
+
+```
+const add = (function getAdd() {
+  let foo = 1
+
+  return function () {
+    foo += 1
+
+    return foo
+  }
+})()
+
+console.log(add()) // 2
+console.log(add()) // 3
+console.log(add()) // 4
+```
+
+이게 바로 클로저다. (두둥!)
+
+이는 외부에서 접근할 수 없지만 내부에서는 add 함수 실행을 통해 접근할 수 있다.
+
+바로 이런점을 활용하여 React Hook은 만들어졌다.
