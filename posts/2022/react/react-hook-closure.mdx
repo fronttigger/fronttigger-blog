@@ -1,5 +1,5 @@
 ---
-title: React Hook과 Closure의 관계 #required
+title: React Hook과 Closure의 관계 (feat. useState) #required
 tags:
   - react
   - hook
@@ -11,7 +11,7 @@ description: '상상도 못한 정체! ㄴㅇㄱ' # required
 thumbnailImg: '/thumbnail/2022/04/react-test/test-custom-hooks.png' # required
 ---
 
-React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8.0](https://github.com/facebook/react/blob/main/CHANGELOG.md#1680-february-6-2019)에서 추가된 기능이다.
+React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8](https://github.com/facebook/react/blob/main/CHANGELOG.md#1680-february-6-2019)에서 추가된 기능이다.
 
 현재 기준으로 대략 3년 정도 전에 등장했으며 첫 등장 이후로 최근까지 지속적으로 훅들이 개선되고 [추가](https://github.com/reactjs/rfcs/tree/useevent/text)되고 있다.
 
@@ -23,7 +23,7 @@ React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8.0](http
 
 뜨끔하여 바로 관련된 아티클을 찾아보다가 2019년 JSConf에서 발표한 [유튜브 자료](https://www.youtube.com/watch?v=KJP1E-Y-xyo)가 있어 이를 시청하였고 (영어로 되어있어서 모든걸 이해한건 아니지만..) 정리해두면 많은 도움이 될 것 같았다.
 
-### 클로저가 뭐지..?
+## 클로저가 뭐지..?
 
 사실 리액트를 활용해 개발하고 있다면 자바스크립트를 통해 개발하고 있으므로 클로저라는 개념에 대해 들어본 경험이 있을 것이다.
 
@@ -32,11 +32,11 @@ React에서 [hook](https://reactjs.org/docs/hooks-intro.html)은 [16.8.0](http
 > en: closure makes it possible for a function to have "private" variables.  
 > ko: 클로저는 함수에 "사적인" 변수를 가질 수 있도록 해준다.
 
-우리가 평소에 들었던 \`캡슐화\` 라는 개념이 바로 여기서 등장한다. 어떻게 보면 \`상태\`를 가지고 있다고도 말할 수 있다.
+우리가 평소에 들었던 `캡슐화` 라는 개념이 바로 여기서 등장한다. 어떻게 보면 `상태`를 가지고 있다고도 말할 수 있다.
 
 그러면 이러한 형태를 보이지 않는 경우는 어떤게 있을까?
 
-```
+```javascript
 let foo = 1 // global scope
 
 function add() {
@@ -53,7 +53,7 @@ foo라는 변수에 1을 더해주는 add 함수가 있다.
 
 언뜻 보면 잘 동작하는 것 처럼 보이지만, 문제가 발생한다.
 
-```
+```javascript
 let foo = 1 // global scope
 
 function add() {
@@ -75,7 +75,7 @@ foo라는 변수를 밖에서 건들지 못하도록 해야겠구나!
 
 그래서 이렇게 변경해보았다.
 
-```
+```javascript
 function add() {
   let foo = 1
   foo += 1
@@ -94,7 +94,7 @@ console.log(add()) // 2
 
 그래서 이렇게 다시 변경했다.
 
-```
+```javascript
 function getAdd() {
   let foo = 1
 
@@ -117,7 +117,7 @@ console.log(add()) // 4
 
 여기서 **모듈 패턴**을 통해서도 클로저를 만들 수 있다.
 
-```
+```javascript
 const add = (function getAdd() {
   let foo = 1
 
@@ -139,11 +139,11 @@ console.log(add()) // 4
 
 바로 이런점을 활용하여 React Hook은 만들어졌다.
 
-### closure를 useState에 적용하기
+## closure를 hook에 적용하기
 
-#### useState 구현
+### useState 구현
 
-```
+```javascript
 function useState(initVal) {
   let _val = initVal
   const state = () => _val
@@ -166,7 +166,7 @@ initVal을 선언 후 그 값을 반환하는 함수와 갱신하는 함수를 �
 
 바로 React 모듈 안에 위치하기 때문인데, 아까 클로저 함수를 만들었던 방식대로 모듈 패턴을 사용해보자
 
-```
+```javascript
 const React = (function () {
   function useState(initVal) {
     let _val = initVal
@@ -189,13 +189,13 @@ console.log(count()) // 2
 
 자 그러면 이제 훅을 실행할 컴포넌트를 만들어보자
 
-```
+```javascript
 function Component() {
   const [count, setCount] = React.useState(1)
 
   return {
     render: () => console.log(count),
-    click: () => setCount(count)
+    click: () => setCount(count),
   }
 }
 ```
@@ -204,7 +204,7 @@ function Component() {
 
 그러면 이제 컴포넌트를 어떻게 렌더링 해주어야할지 알려줘야한다.
 
-```
+```javascript
 const React = (function () {
   function useState(initVal) {
     let _val = initVal
@@ -244,9 +244,9 @@ var App = React.render(Component) // ƒ state() {}
 
 그래서 이를 해결하기 위해 \_val 변수를 밖으로 이동시킨다.
 
-그러면 이제 클로저의 형태는 유지하면서 initVal까지 처리가 가능해진다.
+그러면 이제 initVal까지 처리가 가능해진다.
 
-```
+```javascript
 const React = (function () {
   let _val
 
@@ -285,6 +285,195 @@ var App = React.render(Component) // 2
 
 자 여기까지 보면 useState 선언, 렌더링 후 click을 통한 state 변경이 값이 잘 유지된 채로 진행되고 있다는 것을 알 수 있다.
 
-하지만 useState가 **여러개(2개 이상)**가 사용된다면 정상적으로 동작하지 않게된다.
+## hook을 여러개 사용하기
 
-### useState를 여러개 사용하기
+하지만 useState를 **여러개(2개 이상)** 사용한다면 정상적으로 동작하지 않게된다.
+
+```javascript
+// ... 생략
+
+function Component() {
+  const [count, setCount] = React.useState(1)
+  const [text, setText] = React.useState('apple')
+
+  return {
+    render: () => console.log({ count, text }),
+    click: () => setCount(count + 1),
+    type: (word) => setText(word),
+  }
+}
+
+var App = React.render(Component) // { count: 1, text: "apple"}
+App.click()
+var App = React.render(Component) // { count: 2, text: 2 }
+App.type('pear')
+var App = React.render(Component) // { count: "pear", text: "pear"}
+```
+
+그 이유는 React 모듈에 있는 값은 `_val` **하나**이기 때문이다. 갱신하는 함수를 호출할 때마다 \_val을 덮어쓰기 때문에 항상 같은 값으로 갱신되게 된다.
+
+이를 방지하기 위해 상태의 수만큼 처리할 수 있도록`배열`과 `인덱스`를 활용하여 개선해보자
+
+```javascript
+const React = (function () {
+  let hooks = []
+  let idx = 0
+
+  function useState(initVal) {
+    const state = hooks[idx] || initVal
+    const setState = (newVal) => {
+      hooks[idx] = newVal
+    }
+
+    idx += 1
+
+    return [state, setState]
+  }
+
+  function render(Component) {
+    const C = Component()
+    C.render()
+
+    console.log(idx) // 2, 4, 6
+
+    return C
+  }
+
+  return { useState, render }
+})()
+
+function Component() {
+  const [count, setCount] = React.useState(1)
+  const [text, setText] = React.useState('apple')
+
+  return {
+    render: () => console.log({ count, text }),
+    click: () => setCount(count + 1),
+    type: (word) => setText(word),
+  }
+}
+
+var App = React.render(Component) // { count: 1, text: 'apple' }
+App.click()
+var App = React.render(Component) // { count: 2, text: 'apple' }
+App.type('pear')
+var App = React.render(Component) // { count: 'pear', text: 'apple' }
+```
+
+여기서 pear를 추가한 순간 원래 text에 갱신이 되어야했지만 count에 변경이 되었다.
+
+그 이유는 React.render를 하는 순간 Component가 useState 함수를 호출하게 되고 자동으로 idx가 추가가 된다.
+
+그래서 이미 증가된 idx를 통해 갱신을 하다보니 값이 이상해진다.
+
+그러면 idx가 증가되는걸 알아냈으니 이를 고쳐보자
+
+```javascript
+const React = (function () {
+  let hooks = []
+  let idx = 0
+
+  function useState(initVal) {
+    const state = hooks[idx] || initVal
+    const setState = (newVal) => {
+      hooks[idx] = newVal
+    }
+
+    idx += 1
+
+    return [state, setState]
+  }
+
+  function render(Component) {
+    idx = 0
+    const C = Component()
+    C.render()
+
+    return C
+  }
+
+  return { useState, render }
+})()
+
+function Component() {
+  const [count, setCount] = React.useState(1)
+  const [text, setText] = React.useState('apple')
+
+  return {
+    render: () => console.log({ count, text }),
+    click: () => setCount(count + 1),
+    type: (word) => setText(word),
+  }
+}
+
+var App = React.render(Component) // { count: 1, text: 'apple' }
+App.click()
+var App = React.render(Component) // { count: 1, text: 'apple' }
+App.type('pear')
+var App = React.render(Component) // { count: 1, text: 'apple' }
+
+// [ <2 empty items>, 2 ]
+// [ <2 empty items>, 'pear' ]
+```
+
+자 idx를 render시 0으로 초기화 해줬더니 아예 상태가 바뀌지 않는 현상으로 되어버렸다.
+
+이런 현상은 당연하게도 render가 먼저 발생하고 그 이후 setState가 발생하면서 idx가 계속 0으로 들어가기 때문에 hooks 배열에 값이 저장되지 못하고 initVal이 계속 state를 대신한 값이 되어버리기 때문이다. 그리고 두번 호출 이후 idx가 3이 되었을 때 들어가기 때문에 값은 세번째에 들어가게 되는 것이다.
+
+자 그러면 이렇게 변동되는 idx가 문제라는 것을 알았으니 이를 해결해보자
+
+```javascript
+function useState(initVal) {
+  const state = hooks[idx] || initVal
+  const _idx = idx // freeze
+  const setState = (newVal) => {
+    hooks[_idx] = newVal
+  }
+
+  idx += 1
+
+  return [state, setState]
+}
+
+var App = React.render(Component) // { count: 1, text: 'apple' }
+App.click()
+var App = React.render(Component) // { count: 2, text: 'apple' }
+App.type('pear')
+var App = React.render(Component) // { count: 2, text: 'pear' }
+```
+
+바로 변동되는 idx를 useState의 고유한 값으로 고정시켜놓는 것이다.
+
+이렇게 되면 idx가 component render 이후 idx가 증가했더라도 useState만의 고유한 idx가 있기 때문에 그에 맞는 상태를 변경할 수 있게 된다. ☺️
+
+## hook은 호출에 대한 순서보장이 필요하다
+
+[리액트 공식문서](https://ko.reactjs.org/docs/hooks-rules.html#only-call-hooks-at-the-top-level)에도 명시되어 있듯이 hook은 반복문, 조건문 및 중첩된 함수에서 사용하면 안된다.
+
+그 이유는 동일한 순서로 호출이 되어야 하기 때문이다.
+
+```javascript
+function Component() {
+  if (Math.random() > 0.5) {
+    const [count, setCount] = React.useState(1) // ReferenceError: count is not defined
+  }
+
+  const [text, setText] = React.useState('apple')
+
+  return {
+    render: () => console.log({ count, text }),
+    click: () => setCount(count + 1),
+    type: (word) => setText(word),
+  }
+}
+```
+
+원래는 hook을 호출한 순간 각각의 상태에 대한 배열의 idx를 부여받고 그 곳에서 상태를 관리하지만,
+
+만약 특정 조건에 따라서 hook이 생성된다면 idx가 변경될 여지가 있기 때문이다.
+
+이처럼 리액트 훅은 클로저라는 개념을 사용하여 private한 값을 활용하여 구성되어있다.
+
+평소에 클로저의 개념에 대해서만 대략 알고있었지 사실 실제 코드에서 적용한다거나, 의식적으로 찾아보지 않았는데 이번 기회를 통해 클로저와 훅의 원리에 대해 공부하는 좋은 계기가 되었다! 👍
+
+[해당 영상](https://www.youtube.com/watch?v=KJP1E-Y-xyo)에 나머지 부분이 있으니 궁금하다면 더 참고하면 좋을 것 같다.
