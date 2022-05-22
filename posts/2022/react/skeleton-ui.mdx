@@ -1,0 +1,322 @@
+---
+title: 빈자리를 대신해줄 Skeleton 컴포넌트 구현하기 (feat. emotion) #required
+tags:
+  - react
+  - emotion
+  - ux
+published: true # required
+date: '2022. 5. 23' # required
+description: '비움의 미학은 어디로.. ☠️' # required
+thumbnailImg: '/thumbnail/2022/04/react/react-hook.png' # required
+---
+
+Skeleton 컴포넌트는 통해 실제 데이터가 보여지기 전에 그려주는 컴포넌트다.
+
+물론 화면을 구성함에 있어서 필수적인 컴포넌트는 아니겠지만 주로 사용되는 방법으로는 사용자의 **이탈방지**, 급격한 **레이아웃 이동** 방지, 기존 **로딩** 컴포넌트 대체 등 많은 이유로 사용되고 있다.
+
+바로 아래와 같은 화면이다.
+
+@@ 원티드 이미지 @@
+
+위 화면은 원티드에서 채용정보 데이터를 그려주기 전 그려줄 위치에 미리 컨텐츠의 레이아웃을 차지하고 있는 형태이다.
+
+이렇게 미리 컨텐츠 영역을 차지하고 대기한다면 사용자는 해당 컨텐츠의 위치를 **예측**할 수 있으며 뜬금없이 컨텐츠가 등장하지 않기 때문에 좋은 사용성을 제공할 수 있다.
+
+위와 이어지는 개념으로 [CLS(Cumulative Layout Shift)](https://web.dev/i18n/ko/cls/)라는 것을 통해 예기치 않은 레이아웃 이동을 측정하여 점수를 매기기도 하는 등 사용성에서 굉장히 중요한 개념으로 자리매김 했다.
+
+실제 코드는 [Github](https://github.com/fronttigger/code-playground/tree/main/skeleton)에 있으니 필요시 참고하면 된다. 💻
+
+## 컴포넌트 기능 정의
+
+일단 스켈레톤 컴포넌트가 가질 기능에 대해서 정의해야했다.
+
+여러가지 자료를 찾아보던 중 [Material UI](https://mui.com/material-ui/react-skeleton/)의 스켈레톤 컴포넌트가 단순하면서 명확했다.
+
+여기서 나는 애니메이션에 대한 기능을 추가해 총 7 개의 props로 정의했다.
+
+- variant: 스켈레톤 컴포넌트의 모양
+- width: 넓이
+- height: 높이
+- animation: 애니메이션 종류
+- animationSpeed: 애니메이션 속도
+- waveColor: 웨이브 애니메이션 색
+- backgroundColor: 배경색
+
+## 컴포넌트 구현
+
+### props typing
+
+먼저 각 props에 대한 타이핑을 진행했다.
+
+```typescript
+// Skeleton/index.tsx
+type VariantType = 'text' | 'circular' | 'rectangular'
+type AnimationType = 'pulsate' | 'wave' | false
+
+interface SkeletonProps {
+  variant?: VariantType
+  width?: string
+  height?: string
+  animation?: AnimationType
+  animationSpeed?: number
+  backgroundColor?: string
+  waveColor?: string
+}
+```
+
+### 스타일 구현
+
+props에 따른 스타일을 만들기 위해 컨테이너 컴포넌트를 구현했다.
+
+```typescript
+import styled from '@emotion/styled'
+// 생략..
+const Container = styled.div<SkeletonProps>``
+
+function Skeleton({
+  variant,
+  width,
+  height,
+  animation,
+  animationSpeed,
+  backgroundColor,
+  waveColor,
+}: SkeletonProps): JSX.Element {
+  return (
+    <Container
+      variant={variant}
+      width={width}
+      height={height}
+      animation={animation}
+      animationSpeed={animationSpeed}
+      backgroundColor={backgroundColor}
+      waveColor={waveColor}
+    />
+  )
+}
+
+export default Skeleton
+```
+
+이제 정의한 props에 대한 컨테이너 컴포넌트에서 조건에 맞는 스타일을 작성해주면 된다.
+
+### variant
+
+일단 첫번째로 모양에 대한 스타일을 정의했다.
+
+```typescript
+import styled from '@emotion/styled'
+import { css, SerializedStyles } from '@emotion/react'
+
+const variants: { [key in VariantType]: SerializedStyles } = {
+  text: css`
+    border-radius: 4px;
+  `,
+  circular: css`
+    border-radius: 50%;
+  `,
+  rectangular: css``,
+}
+
+const Container = styled.div<SkeletonProps>`
+  ${({ variant }) => variants[variant || 'text']};
+`
+
+// 생략..
+```
+
+각 모양에 대한 스타일을 객체 형태를 통해 해당 type에 대한 css를 가져오도록 했다.
+
+### width, height
+
+높이, 넓이는 특별한 것 없이 문자열 형태로 받아서 처리해주었다.
+
+```typescript
+import styled from '@emotion/styled'
+import { css, SerializedStyles } from '@emotion/react'
+
+// 생략..
+
+const Container = styled.div<SkeletonProps>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
+
+  ${({ variant }) => variants[variant || 'text']};
+`
+```
+
+### animation
+
+[애니메니션](https://mui.com/material-ui/react-skeleton/#animations)은 두 가지가 있다.
+
+첫번째는 pulsate인데, 이는 쉽게 말하면 깜빡이는 효과다.
+
+두번째는 wave로 좌에서 우로 파도치듯이 이동하는 효과이다.
+
+이 두가지를 keyframe 형태로 구현했다.
+
+```typescript
+const pulsateAnimation = keyframes`
+  0% {
+    background-color: rgba(227, 227, 227);
+  }
+  50% {
+    background-color: rgba(227, 227, 227, 0.6);
+  }
+  100% {
+    background-color: rgba(227, 227, 227);
+  }
+`
+
+const waveAnimation = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+`
+```
+
+그런데 여기서 기능 정의때 추가했던 props 중 animationSpeed, backgroundColor, waveColor가 있다는 것을 눈치챘다. 🧐
+
+위 세가지를 추가적으로 대응하기 위해서는 pulsateAnimation의 경우 keyframe를 만들기보단 background prop을 확장할 함수로 만들고, 이를 활용하는 스타일을 반환하는 함수를 구현하면 props에 따른 스타일을 구현할 수 있을 것 같았다.
+
+```typescript
+// 생략..
+const getPulsateAnimation = (backgroundColor?: string) => keyframes`
+  0% {
+    background-color: ${backgroundColor};
+  }
+  50% {
+    background-color: ${backgroundColor};
+    opacity: 0.6;
+  }
+  100% {
+    background-color: ${backgroundColor}
+  }
+`
+
+function getBackgroundAnimation(
+  animationType?: AnimationType,
+  animationSpeed?: number,
+  backgroundColor?: string,
+  waveColor?: string,
+): SerializedStyles {
+  switch (animationType) {
+    case 'pulsate':
+    default: {
+      return css`
+        animation: ${getPulsateAnimation(backgroundColor)} ${`${animationSpeed}s`} ease-in-out 0.5s infinite;
+      `
+    }
+    case 'wave': {
+      return css`
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          transform: translateX(-100%);
+          background: linear-gradient(90deg, transparent, ${waveColor}, transparent);
+          animation: ${waveAnimation} ${`${animationSpeed}s`} ease-in-out 0.5s infinite;
+        }
+      `
+    }
+    case false: {
+      return css``
+    }
+  }
+}
+
+const Container = styled.div<SkeletonProps>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
+  background-color: ${({ backgroundColor }) => backgroundColor};
+
+  ${({ variant }) => variants[variant || 'text']};
+  ${({ animation, animationSpeed, backgroundColor, waveColor }) =>
+    getBackgroundAnimation(animation, animationSpeed, backgroundColor, waveColor)};
+`
+
+// 생략..
+```
+
+위처럼 애니메이션의 case를 찾아 해당 prop에 맞는 스타일을 반환해주게 처리했다.
+
+그리고 마지막으로 컴포넌트에 기본값을 정의해주었다.
+
+```typescript
+const BASE_BACKGROUND_COLOR = 'rgba(227, 227, 227)'
+const WAVE_BACKGROUND_COLOR = 'rgba(0, 0, 0, 0.07)'
+
+// 생략..
+
+function Skeleton({
+  variant = 'text',
+  width = '100%',
+  height = '100%',
+  animation = 'pulsate',
+  animationSpeed = 1.5,
+  backgroundColor = BASE_BACKGROUND_COLOR,
+  waveColor = WAVE_BACKGROUND_COLOR,
+}: SkeletonProps): JSX.Element {
+  return (
+    <Container
+      variant={variant}
+      width={width}
+      height={height}
+      animation={animation}
+      animationSpeed={animationSpeed}
+      backgroundColor={backgroundColor}
+      waveColor={waveColor}
+    />
+  )
+}
+```
+
+자 이제 실제로 잘 동작하는지 확인해보자
+
+## 테스트
+
+```typescript
+// App.tsx
+import React from 'react'
+import './App.css'
+
+import Skeleton from './skeleton'
+
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <div style={{ width: 40, height: 40 }}>
+          <Skeleton variant="circular" />
+          <div style={{ width: 200, height: 100, marginTop: 10 }}>
+            <Skeleton variant="rectangular" />
+          </div>
+          <div style={{ width: 140, height: 14, marginTop: 10 }}>
+            <Skeleton variant="text" />
+          </div>
+          <div style={{ width: 100, height: 14, marginTop: 5 }}>
+            <Skeleton variant="text" />
+          </div>
+        </div>
+      </header>
+    </div>
+  )
+}
+
+export default App
+```
+
+@@ 이미지 2개 @@
+
+의도한대로 잘 동작한다! 🎉
