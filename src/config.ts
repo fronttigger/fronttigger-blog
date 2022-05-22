@@ -38,8 +38,10 @@ export default {
   ],
   about: {
     title: '안녕하세요 👋 \n 저는 김준형입니다.',
-    description:
-      '빠르게 바뀌어 가는 웹 생태계와 다양한 언어 및 라이브러리, 프레임워크에 관심이 많습니다. \n 현재 Typescript와 React.js 환경에서 개발하고 있습니다.',
+    description: `빠르게 바뀌어 가는 웹 생태계와 다양한 언어 및 라이브러리, 프레임워크에 관심이 많습니다.
+      항상 열려있는 사고를 통해 넓은 시야를 바라볼 수 있도록 노력합니다.
+      주도적으로 업무할 수 있는 환경을 선호합니다.
+      Typescript와 React 환경에서 개발하고 있습니다.`,
     experiences: [
       {
         company: 'Frientrip (Frip)',
@@ -51,8 +53,8 @@ export default {
             date: '2022. 04 ~ 현재',
             description: '프립 디자인 시스템 개발을 진행하고 있습니다.',
             tasks: [
-              'Yarn Berry, Rollup을 이용한 개발환경 구성 경험',
-              'Gitlab CI를 통한 CI/CD 파이프라인 구성 경험',
+              'Yarn Berry, Rollup을 이용한 개발환경 구성',
+              'Gitlab CI를 통한 CI/CD 환경 구성',
               'Storybook을 이용한 컴포넌트 단위의 UI 개발',
               'Jest와 react-testing-library를 이용한 컴포넌트 테스팅',
             ],
@@ -73,13 +75,13 @@ export default {
             date: '2021. 07 ~ 현재',
             description: '프립 웹 서비스와 관련된 개발을 진행하고 있습니다.',
             tasks: [
-              '프립 웹 서비스 대규모 개편 작업',
-              'Context API와 Hook을 이용한 상태관리',
-              'Redux와 Redux-saga를 활용한 글로벌 상태관리 및 비동기 처리',
-              'REST API에서 GraphQL Apollo로 전환',
+              '커머스 전반 비즈니스 플로우에 대한 이해',
               'SSR과 CSR을 사용하여 페이지 렌더링 개선',
-              '모바일 앱 내 웹앱 기반의 개발 경험',
-              'npm workspaces를 통한 모노레포 환경 구성 경험',
+              'REST API → GraphQL 마이그레이션',
+              'Redux와 Redux-saga를 활용한 글로벌 상태관리 및 비동기 처리',
+              'npm workspaces 모노레포 환경 구성',
+              '하이브리드 앱 내 웹뷰 개발',
+              '데이터 수집 및 분석 도구 연동',
             ],
             stacks: [
               'Typescript',
@@ -101,30 +103,13 @@ export default {
         date: '2020. 12 ~ 2021. 06',
         projects: [
           {
-            title: '보닥 앱 구현 및 유지보수',
-            date: '2021. 4 ~ 2021. 06',
-            description: '보닥 앱을 개발 및 유지보수 하였습니다.',
-            tasks: ['보험, 인슈어테크 비즈니스 관련 프로젝트 경험', 'React Native 기반 개발'],
-            stacks: [
-              'TypeScript',
-              'React-Native',
-              'GraphQL Apollo',
-              'Styled-Components',
-              'Context API',
-              'Hooks',
-              'HTML/CSS',
-            ],
-          },
-          {
             title: '백오피스 구현',
             date: '2020. 12 ~ 2021. 06',
             description: '보닥 앱에 관련된 백오피스 개발을 진행하였습니다.',
             tasks: [
-              'jQuery 기반 백오피스를 React로 전환하여 CSR을 이용한 렌더링 속도 개선',
-              'Context API와 Hook을 이용한 상태관리',
-              'REST API에서 GraphQL Apollo로 전환',
-              'styled-components 기반의 CSS-in-JS 개발',
-              '망분리 형태의 폐쇄적인 개발 환경 경험',
+              'jQuery 기반 백오피스를 React로 전환',
+              'REST API → GraphQL 마이그레이션',
+              '보험, 인슈어테크 비즈니스 관련 프로젝트 경험',
             ],
             stacks: [
               'Typescript',
