@@ -10,13 +10,15 @@ description: '비움의 미학은 어디로.. ☠️' # required
 thumbnailImg: '/thumbnail/2022/04/react/react-hook.png' # required
 ---
 
+import Image from './src/components/image'
+
 Skeleton 컴포넌트는 통해 실제 데이터가 보여지기 전에 그려주는 컴포넌트다.
 
 물론 화면을 구성함에 있어서 필수적인 컴포넌트는 아니겠지만 주로 사용되는 방법으로는 사용자의 **이탈방지**, 급격한 **레이아웃 이동** 방지, 기존 **로딩** 컴포넌트 대체 등 많은 이유로 사용되고 있다.
 
 바로 아래와 같은 화면이다.
 
-@@ 원티드 이미지 @@
+<Image src="/images/2022/05/react/wanted-skeleton.png" alt="skeleton" width="100%" />
 
 위 화면은 원티드에서 채용정보 데이터를 그려주기 전 그려줄 위치에 미리 컨텐츠의 레이아웃을 차지하고 있는 형태이다.
 
@@ -317,6 +319,12 @@ function App() {
 export default App
 ```
 
-@@ 이미지 2개 @@
+<br />
+
+<Image src="/images/2022/05/react/skeleton.gif" alt="skeleton" width="40%" />
+
+<br />
+
+<Image src="/images/2022/05/react/skeletonwave.gif" alt="skeleton" width="40%" />
 
 의도한대로 잘 동작한다! 🎉
