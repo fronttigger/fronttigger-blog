@@ -3,20 +3,14 @@ import { atom, selector } from 'recoil'
 import { Post } from '#types/post'
 import { DEFAULT_POSTS_SIZE } from '#constants'
 
-const Initindex = 'initIndex'
-const InitPosts = 'initPosts'
+const INIT_INDEX_PAGE = 'initIndex'
 const PAGE = 'page'
 const ALL_POSTS = 'allPosts'
 const CURRENT_POSTS = 'currentPosts'
 const HAS_NEXT_POSTS_PAGE = 'hasNextPostsPage'
 
 export const initIndexPageLoading = atom<boolean>({
-  key: Initindex,
-  default: true,
-})
-
-export const initPostsPageLoading = atom<boolean>({
-  key: InitPosts,
+  key: INIT_INDEX_PAGE,
   default: true,
 })
 
