@@ -15,7 +15,7 @@ function IndexPage({ allPosts }: { allPosts: Post[] }) {
       <PageSEO title="Home" url={config.url} />
       <h1 className={styles.title}>Latest</h1>
       <ul className={styles.container}>
-        {allPosts.map(({ frontMatter, slug }, index) => (
+        {allPosts.slice(0, DEFAULT_POSTS_SIZE).map(({ frontMatter, slug }, index) => (
           <li key={index} className={styles.cardContainer}>
             <Link href={`/${slug.year}/${slug.subject}/${slug.title}`}>
               <a>
@@ -36,7 +36,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      allPosts: allPosts.slice(0, DEFAULT_POSTS_SIZE),
+      allPosts,
     },
   }
 }
