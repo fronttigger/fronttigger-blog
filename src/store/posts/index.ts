@@ -11,7 +11,7 @@ const HAS_NEXT_POSTS_PAGE = 'hasNextPostsPage'
 
 export const isInitIndexPageState = atom<boolean>({
   key: IS_INIT_INDEX_PAGE,
-  default: true,
+  default: false,
 })
 
 export const pageState = atom<number>({

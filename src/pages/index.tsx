@@ -17,8 +17,8 @@ function IndexPage({ allPosts }: { allPosts: Post[] }) {
   const [isInitIndexPage, setIsInitIndexPage] = useRecoilState(isInitIndexPageState)
 
   useEffect(() => {
-    if (isInitIndexPage) {
-      setIsInitIndexPage(false)
+    if (!isInitIndexPage) {
+      setIsInitIndexPage(true)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -32,13 +32,13 @@ function IndexPage({ allPosts }: { allPosts: Post[] }) {
         {allPosts.map(({ frontMatter, slug }, index) => (
           <li key={index} className={styles.cardContainer}>
             {isInitIndexPage ? (
-              <Skeleton />
-            ) : (
               <Link href={`/${slug.year}/${slug.subject}/${slug.title}`}>
                 <a>
                   <Card frontMatter={frontMatter} />
                 </a>
               </Link>
+            ) : (
+              <Skeleton />
             )}
           </li>
         ))}
