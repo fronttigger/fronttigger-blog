@@ -11,14 +11,14 @@ import Card from '#components/card'
 import { Post } from '#types/post'
 import { getAllPosts } from '#utils/posts'
 import { DEFAULT_POSTS_SIZE } from '#constants'
-import { initIndexPageLoading } from '#store/posts'
+import { isInitIndexPageState } from '#store/posts'
 
 function IndexPage({ allPosts }: { allPosts: Post[] }) {
-  const [isIndexPageLoading, setIsIndexPageLoading] = useRecoilState(initIndexPageLoading)
+  const [isInitIndexPage, setIsInitIndexPage] = useRecoilState(isInitIndexPageState)
 
   useEffect(() => {
-    if (isIndexPageLoading) {
-      setIsIndexPageLoading(false)
+    if (isInitIndexPage) {
+      setIsInitIndexPage(false)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -31,7 +31,7 @@ function IndexPage({ allPosts }: { allPosts: Post[] }) {
       <ul className={styles.container}>
         {allPosts.map(({ frontMatter, slug }, index) => (
           <li key={index} className={styles.cardContainer}>
-            {isIndexPageLoading ? (
+            {isInitIndexPage ? (
               <Skeleton />
             ) : (
               <Link href={`/${slug.year}/${slug.subject}/${slug.title}`}>
