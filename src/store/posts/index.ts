@@ -3,10 +3,16 @@ import { atom, selector } from 'recoil'
 import { Post } from '#types/post'
 import { DEFAULT_POSTS_SIZE } from '#constants'
 
+const Init = 'init'
 const PAGE = 'page'
 const ALL_POSTS = 'allPosts'
 const CURRENT_POSTS = 'currentPosts'
 const HAS_NEXT_POSTS_PAGE = 'hasNextPostsPage'
+
+export const initState = atom<boolean>({
+  key: Init,
+  default: false,
+})
 
 export const pageState = atom<number>({
   key: PAGE,
