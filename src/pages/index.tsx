@@ -1,8 +1,8 @@
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import config from 'config'
-import { useRecoilState } from 'recoil'
 import { useEffect } from 'react'
+import { useRecoilState } from 'recoil'
 
 import Skeleton from '#components/skeleton'
 import * as styles from '#shared/styles/pages/posts/styles.css'
@@ -11,13 +11,18 @@ import Card from '#components/card'
 import { Post } from '#types/post'
 import { getAllPosts } from '#utils/posts'
 import { DEFAULT_POSTS_SIZE } from '#constants'
-import { initState } from '#store/posts'
+import { initIndexPageLoading } from '#store/posts'
 
 function IndexPage({ allPosts }: { allPosts: Post[] }) {
-  const [isInit, setIsInit] = useRecoilState(initState)
+  const [isIndexPageLoading, setIsIndexPageLoading] = useRecoilState(initIndexPageLoading)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setIsInit(true), [])
+  useEffect(() => {
+    if (isIndexPageLoading) {
+      setIsIndexPageLoading(false)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <>
@@ -26,14 +31,14 @@ function IndexPage({ allPosts }: { allPosts: Post[] }) {
       <ul className={styles.container}>
         {allPosts.map(({ frontMatter, slug }, index) => (
           <li key={index} className={styles.cardContainer}>
-            {isInit ? (
+            {isIndexPageLoading ? (
+              <Skeleton />
+            ) : (
               <Link href={`/${slug.year}/${slug.subject}/${slug.title}`}>
                 <a>
                   <Card frontMatter={frontMatter} />
                 </a>
               </Link>
-            ) : (
-              <Skeleton />
             )}
           </li>
         ))}
