@@ -1,0 +1,63 @@
+---
+title: Skeleton UI를 통해 블로그 CLS 최적화 해보기 (feat. Lighthouse) #required
+tags:
+  - Next.js
+  - CLS
+  - React
+  - Google
+  - Lighthouse
+published: true # required
+date: '2022. 5. 26' # required
+description: '최적화 시리즈의 시작인가' # required
+thumbnailImg: '/thumbnail/2022/04/browser/robot.png' # required
+---
+
+import Image from './src/components/image'
+
+블로그를 개설하고 약 6개월간 운영하면서 대략 26개의 글을 작성했다.
+
+지금까지 글만 작성하면서 성능에 대해서는 크게 신경을 못썼었는데 글도 슬슬 많아지고 성능에도 욕심이 나서 구글성님의 [Lighthouse](https://developers.google.com/web/tools/lighthouse)를 통해 성능 측정을 해보았다.
+
+### 첫 성능 측정 결과
+
+<Image src="/images/2022/05/browser/prev.png" alt="prev result" width="60%" />
+
+<br />
+
+<Image src="/images/2022/04/react/bad.png" alt="bad" width="50%" />
+
+전반적으로는 괜찮았지만 가장 밑에 있는 **Cumulative Layout Shift**가 눈에 띄었다.
+
+[Cumulative Layout Shift](https://web.dev/i18n/ko/cls/)는 줄여서 CLS라고도 하는데 레이아웃 변화에 따른 측정값이다.
+
+이는 사용자가 급작스런 **레이아웃 변경**으로 인해 시각적 안정성을 보장받지 못하는 경험을 측정한 점수로써 레이아웃 변동이 적고 예측이 가능할수록 점수가 0에 가까워지는 항목이다.
+
+현재 블로그에서는 SSG 형태로 되어있으며 최초 사용자가 접근시 글에 대한 데이터를 가져와야 하기 때문에 그 때 잠깐 큰 레이아웃 이동이 일어난다.
+
+<Image src="/images/2022/05/browser/current.gif" alt="current" width="50%" />
+
+물론 간단한 수준의 데이터라 무거운 데이터도 아니어서 엄청 불편하진 않지만, 이전에 MPA(Multi Page Application)의 시절처럼 새로고침 되는 느낌이 들어 좋은 경험은 아니라고 판단했다. 🤔
+
+그래서 [이전 글](https://www.fronttigger.dev/2022/react/skeleton-ui)에서 만들었던 Skeleton UI를 활용하여 CLS를 개선해보았다. (코드는 이 글에서 설명하지 않는다.)
+
+### Skeleton UI 적용 이후
+
+<Image src="/images/2022/05/browser/success.gif" alt="success" width="50%" />
+
+원래 이렇게 오래걸리진 않지만 글에서는 시각적으로 보여주기 위해 약 1초동안 스켈레톤 컴포넌트를 보여주는 형태로 처리했다.
+
+여기서 추가적으로 더 자연스럽게 보이려면 FadeIn과 같은 애니메이션을 추가하면 사용자가 더욱 좋은 경험을 누릴 수도 있을 것 같다. 😄 (이 글에서는 다루지 않는다.)
+
+자 그러면 위와 같이 스켈레톤을 적용한 결과는 과연 어떻게 나올까?
+
+### LightHouse 재측정 결과
+
+<Image src="/images/2022/05/browser/next.png" alt="next" width="60%" />
+
+<br />
+
+<Image src="/images/2022/04/react/cool.png" alt="cool" width="50%" />
+
+경고등이 떴었던 지난 날을 뒤로하고 가장 최고점인 0이 되었다!
+
+점수도 그에맞게 86점에서 96점으로 무려 10점이나 상승하였다. 🎉🎉
