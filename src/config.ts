@@ -62,7 +62,6 @@ export default {
               'Typescript',
               'React',
               'Yarn Berry',
-              'Redux-saga',
               'Rollup',
               'Storybook',
               'styled-components',
