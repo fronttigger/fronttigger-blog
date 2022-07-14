@@ -16,9 +16,9 @@ import Image from './src/components/image'
 
 ## 테스트 코드 도입 썰
 
-프론트엔드는 특성상 사용자와의 직접적인 상호작용을 통해 즉각적인 피드백을 받을 수 있다.
+프론트엔드는 특성상 사용자와의 직접적인 상호작용을 통해 즉각적인 피드백을 받을 수 있다.
 
-이는 장점이자 단점이 될 수 있는데, 그만큼 사이클을 빠르게 처리해야하는 상황이 굉장히 빈번하게 발생한다. 😅
+이는 장점이자 단점이 될 수 있는데, 그만큼 사이클을 빠르게 처리해야하는 상황이 굉장히 빈번하게 발생한다. 😅
 
 최근 업무를 처리하다보니 새로운 신규 기능 개발도 물론 있었지만 대부분의 업무는 기존의 코드를 유지보수를 하는 경우가 굉장히 많았다.
 
@@ -26,7 +26,7 @@ import Image from './src/components/image'
 
 이렇게 개발하다 보니 위에서 예시를 들었던 결제와 같은 민감한 도메인, 혹은 API가 변경되어야하는 건들이 종종 발생했다. 😖
 
-그래서 이를 개발하기 위해 건드리다보면 문득 불안해지는 시점이 왔었다.
+그래서 이를 개발하기 위해 건드리다보면 굉장히 불안하다.
 
 > 혹시 이 코드 때문에 정상적으로 돌아가지 않으면 어떡하지..?  
 > API가 변경되서 어디선가 사이드 이펙트가 터지면 어떡하지..?  
@@ -34,20 +34,192 @@ import Image from './src/components/image'
 
 위의 예시와 같이 기존에 정상적으로 돌아갔던 기능이 돌아가지 않는 것에 대한 불길한 감정들이 엄습했다.
 
-사실 위에서 작성한 예시 뿐만 아니라 많은 상황에서 이런 생각이 들었다.
+사실 위에서 작성한 예시 뿐만 아니라 수정하는 대부분의 상황에서 이런 생각이 들게 된다.
 
-그래서 이를 타파하기 위해 과감히 도입하자고 결론내린 것이 바로 이전부터 내려온 해결책이 바로 **테스트**다. (물론 100%를 해결해주진 않는다.)
+그래서 이를 타파하기 위해 과감히 도입하자고 결론내린 것이 바로 **테스트**다. (물론 100%를 해결해주진 않겠지만..)
 
 ## MSW 도입 이유
 
-특히 프론트엔드의 테스트는 테스트 코드를 작성하는 것 자체도 어렵지만 여러가지 제약사항이 존재했는데, 그 중에 하나가 바로 \`API\`였다.
+프론트엔드의 테스트는 테스트 코드를 작성하는 것 자체도 어렵지만 여러가지 제약사항이 존재했는데, 그 중에 하나가 바로 \`API\`였다.
 
 테스트 환경의 **데이터** 혹은 개발된 **스키마**가 동일하지 않은 상황이 있었으며, 아직 백엔드 개발이 완성되지 않는 상태거나 완성 되었어도 문제로 인해 다시 개발을 해야하는 경우들이 굉장히 빈번하게 발생했다. 이런 고민들을 덜기 위해 여러가지를 고민하던 와중 알아낸 라이브러리 중 [MSW](https://mswjs.io/)를 알게되었다.
 
 MSW는 한 번의 모킹 처리를 통해 **브라우저**와 **노드** 환경을 대응할 수 있다.
 
-<!-- 이미지 -->
+[##_Image|kage@cXRYTu/btrG4URoJhB/bMaTr3GF58Pjyv8AOJyPK0/img.png|CDM|1.3|{"originWidth":1252,"originHeight":774,"style":"alignCenter","width":564,"height":349}_##]
 
 브라우저에서는 \`Service Worker\`를 이용해 서버로 요청하는 request를 가로채 moking한 API를 반환해준다.
 
-노드 환경에서는 \`node-request-interceptor\` 라이브러리를 사용하여 http, https, XMLHttpRequest 모듈을 확장해서 처리합니다.
+노드 환경에서는 \`node-request-interceptor\` 라이브러리를 사용하여 http, https, XMLHttpRequest 모듈을 확장해서 처리한다.
+
+이렇게 편리하게 API를 모킹 할 수 있는 점에서 굉장히 매력적으로 다가왔다.
+
+그래서 시작은 간단하고 단순한 컴포넌트 단위로 해서 MSW를 활용해 테스트 해보기로 했다.
+
+## MSW 설정
+
+먼저 MSW를 사용하기 위해 [튜토리얼](https://mswjs.io/docs/getting-started/install)을 참고했다.
+
+### 설치
+
+```
+npm install msw --save-dev
+# or
+yarn add msw --dev
+```
+
+#### 모킹 핸들러 구현
+
+```
+// src/components/mocks/handlers.ts
+import { rest } from 'msw'
+
+const review = {
+  rating: 4.3,
+  commentCount: 200,
+}
+
+const getReview = (isError?: boolean) => {
+  return rest.get('/review', (_, res, ctx) => {
+    if (isError) {
+      return res(ctx.status(500))
+    }
+
+    return res(ctx.status(200), ctx.json(review))
+  })
+}
+
+const reviewHandlers = [getReview()]
+
+export default reviewHandlers
+```
+
+테스트를 진행할 특정 도메인에 해당되는 핸들러를 정의했다.
+
+엔드포인트는 \`/review\`, response는 review 객체를 반환한다. 그리고 만약 에러가 발생한다면 상태 500을 반환하도록 만들었다.
+
+### 핸들러 모듈 관리
+
+```
+// src/mocks/handlers.js
+import reviewHandlers from '../components/Evaluation/mocks/handlers'
+
+export const handlers = [...Object.values(reviewHandlers)]
+```
+
+많아질 핸들러를 대비해 통합 핸들러 모듈을 생성했다.
+
+이제 이 통합한 핸들러를 통해서 브라우저, 노드 두가지 환경에 모킹을 진행하면 된다.
+
+### 브라우저
+
+브라우저 환경에서는 서비스 워커를 등록하여 개발 환경에서만 동작하도록 처리해줘야한다.
+
+#### 서비스 워커 모듈 생성
+
+```
+npx msw init public/ --save
+```
+
+위 명령어를 통해 public 디렉토리에 서비스 워커 모듈을 생성한다.
+
+#### 핸들러 등록
+
+```
+// src/mocks/browser.js
+import { setupWorker } from 'msw'
+import { handlers } from './handlers'
+
+export const worker = setupWorker(...handlers)
+```
+
+이전에 만들어 두었던 핸들러를 등록한다.
+
+```
+// src/index.tsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+
+if (process.env.NODE_ENV === 'development') {
+  const { worker } = require('./mocks/browser')
+  worker.start()
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
+```
+
+개발 환경일 때 워커를 실행하면 브라우저는 준비 끝!
+
+### 노드
+
+브라우저와 마찬가지로 핸들러를 등록시킨다.
+
+#### 핸들러 등록
+
+```
+// src/mocks/server.js
+import { setupServer } from 'msw/node'
+import { handlers } from './handlers'
+
+export const server = setupServer(...handlers)
+```
+
+```
+// src/setupTests.js
+import { server } from './mocks/server.js'
+
+beforeAll(() => server.listen()) // 서버 설정
+
+afterEach(() => server.resetHandlers()) // 각각 테스트 요청 마다 핸들러 초기화
+
+afterAll(() => server.close()) // 테스트가 끝난 후 종료
+```
+
+#### Jest 설정
+
+만약 CRA 환경이 아니라면 Jest 설정이 추가로 필요하다.
+
+```
+// jest.setup.js
+module.exports = {
+  setupFilesAfterEnv: ['./jest.setup.js'],
+}
+```
+
+자 이제 테스트를 위한 모든 준비가 끝났다.
+
+아까 모킹한 API를 사용해보기 위해 간단한 컴포넌트를 예시로 테스팅 해보자! 👨🏻‍💻
+
+## 별점 컴포넌트 구현
+
+평점을 통해 총 5개의 별로 표시해주며 동시에 후기의 갯수를 보여주는 컴포넌트다. (자세한 스타일과 구현체는 생략한다.)
+
+```
+function StarReview({
+  rating = 0.0,
+  commentCount = 0,
+}: StarProps): JSX.Element {
+  return (
+    <Container>
+      <StarGroup rating={rating} />
+      <StarAverage>{rating.toFixed(1)}</StarAverage>
+      <StarReviewContainer>
+        <StarReviewRatingText>후기</StarReviewRatingText>
+        <StarReviewCount>{commentCount}</StarReviewCount>
+      </StarReviewContainer>
+    </Container>
+  )
+}
+
+export default StarReview
+```
+
+이 컴포넌트의 props는 **rating**이라는 평점과, **commentCount**의 후기 갯수를 받아서 그려준다.
+
+즉, 이전에 만들었던 \`/review\` API를 통해 모킹한 데이터를 가져와 테스트 코드 상에서 이상이 없는지, 그리고 그 데이터를 실제 화면에서 잘 그려지고 있는지 확인을 하면 될 것이다.
