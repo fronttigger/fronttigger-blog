@@ -1,11 +1,11 @@
 ---
-title: Typescript의 제네릭을 헬퍼타입을 만들며 알아보기 #required
+title: Typescript의 제네릭을 헬퍼타입을 만들어보며 알아보기 #required
 tags:
   - typescript
   - generic
   - helpertype
 published: true # required
-date: '2022. 7. 20' # required
+date: '2022. 7. 21' # required
 description: '이제서야 제네릭 입문 😅' # required
 thumbnailImg: '/thumbnail/2022/07/typescript/generic.png' # required
 ---
@@ -156,7 +156,9 @@ person.name = 'backtigger'
 person.age = 29
 ```
 
-명시한 any를 이제 프로퍼티를 수정하려고 할 때 readonly인 경우 출력되는 에러인 **Cannot assign to 'name' because it is a read-only property.** 가 출력되도록 작업하면 된다.
+명시한 any를 이제 프로퍼티를 수정하려고 할 때 readonly인 경우 출력되는 에러인 **Cannot assign to 'name' because it is a read-only property.** 가 출력되도록 작업하면 된다.
+
+[문제 풀어보기](https://www.typescriptlang.org/play#code/JYOwLgpgTgZghgYwgAgArQM4HsTIN4BQyyIcAthAFzIZhSgDmRycDVJArmQEbQEC+BAmACeABxQAJCABsJUAEoQ4AExwyRAHgAqAPmQBeFiBHIA9GeSAAlcAto4BeewByDgFLGhCHLWTzsIatLnQlVXUtdChvfSNCYlIKagByGCgcMDBgBjYoOIAaZlZ2AGYABhzBAi8cADoYlCM47kQAa1T06DjzS20AeQARTuoAYTgQECwwFgwMNNwwLGQ46rbeBDgODBRgMeAMFmQoZRUAWmDPJPlRCrLMSrzDZAAmAE525C7egaGRsbgJqeQZubyiwgy1W6022zgu32RxAGhOWDOIgqQA)
 
 그 결과는 아래와 같다.
 
@@ -194,7 +196,9 @@ const person: PersonPick = {
 }
 ```
 
-최종적으로는 person에 name만 입력 가능하도록 만든다.
+최종적으로는 person에 name만 입력 가능하도록 만드는 것이다.
+
+[문제 풀어보기](https://www.typescriptlang.org/play/?#code/JYOwLgpgTgZghgYwgAgArQM4HsTIN4BQyyIcAthAFzIZhSgDmRycDVJArmQEbQEC+BAmACeABxQAJCABsJUVMAQBrADwAVADTIA0gD5kAXhYgRyAPTnkgAJXALaOAXnsAcg4BSxoaIlpMORSqPJpctA+auhQ2CDaAOSkFJF6Qgg4tMjy4dSh4cF+hMQx7JHciMpgwAxsUJGazKzsAMwADNqWyOoA8gAirdTq4iiReCTk7LT0IAwA3Cxs1CBcvFCT-JHIwBgkWGAsGBilpNwyKGBYyO59Gd5KypEAdMit3ABWEAibMsCQUHAyyGRwZjgyMwYCQIYAwMzKEBYADuuDEUCw8hKEAw2jgIAAJshIjVlhisCj1psIAAPVabUAnXrY84gYI3ARAA)
 
 그 결과는 아래와 같다.
 
@@ -220,5 +224,5 @@ const todo: PersonPick = {
 
 참고자료
 
-- https://www.typescriptlang.org/ko/docs/handbook/2/generics.html
-- https://poiemaweb.com/typescript-generic
+- [https://www.typescriptlang.org/ko/docs/handbook/2/generics.html](https://www.typescriptlang.org/ko/docs/handbook/2/generics.html)
+- [https://poiemaweb.com/typescript-generic](https://poiemaweb.com/typescript-generic)
