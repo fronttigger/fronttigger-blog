@@ -49,23 +49,6 @@ export default {
         date: '2022. 06 ~ 현재',
         projects: [
           {
-            title: '호스트 어드민 서비스 개발',
-            date: '2022. 06 ~ 현재',
-            description:
-              '프립을 통해 판매할 상품을 등록하는 호스트를 위한 서비스를 개발하고 있습니다.',
-            tasks: [],
-            stacks: [
-              'Typescript',
-              'React',
-              'Yarn Berry',
-              'webpack',
-              'react-query',
-              'styled-components',
-              'Jest',
-              'react-testing-library',
-            ],
-          },
-          {
             title: '프립 디자인 시스템 개발',
             date: '2022. 04 ~ 현재',
             description: '프립 디자인 시스템 개발을 진행하고 있습니다.',
