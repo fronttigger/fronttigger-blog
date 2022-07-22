@@ -46,7 +46,7 @@ export default {
       {
         company: 'Frientrip (Frip)',
         job: 'Frontend Engineer',
-        date: '2022. 06 ~ 현재',
+        date: '2021. 06 ~ 현재',
         projects: [
           {
             title: '프립 디자인 시스템 개발',
