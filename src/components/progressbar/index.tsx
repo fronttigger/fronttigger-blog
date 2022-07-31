@@ -3,6 +3,8 @@ import { useRouter } from 'next/router'
 
 import * as styles from './index.css'
 
+import throttleByrAF from '#utils/throttleByrAF'
+
 function ProgressBar() {
   const Router = useRouter()
   const [progress, setProgress] = useState(0)
@@ -22,9 +24,9 @@ function ProgressBar() {
       setProgress(currentPercent * 100)
     }
 
-    window.addEventListener('scroll', scroll)
+    window.addEventListener('scroll', throttleByrAF(scroll))
 
-    return () => window.removeEventListener('scroll', scroll)
+    return () => window.removeEventListener('scroll', throttleByrAF(scroll))
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
