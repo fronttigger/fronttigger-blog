@@ -9,7 +9,7 @@ tags:
 published: true # required
 date: '2022. 8. 4' # required
 description: '최적화까지 두 마리 토끼를?! 🐰' # required
-thumbnailImg: '/thumbnail/2022/07/react/msw.png' # required
+thumbnailImg: '/thumbnail/2022/08/react/scroll.png' # required
 ---
 
 import Image from './src/components/image'
@@ -20,7 +20,7 @@ import Image from './src/components/image'
 
 ## 무한 스크롤이란?
 
-무한 스크롤(Infinity Scroll)은 최근 굉장히 많이 사용되는 방식이다. 스크롤링을 하는 사용자가 특정 \`영역\`에 도달하면 기존에 존재하던 컨텐츠 이외에 추가로 무언가를 보여주는 형태로 보통 사용자 경험을 제공한다.
+무한 스크롤(Infinity Scroll)은 최근 굉장히 많이 사용되는 방식이다. 스크롤링을 하는 사용자가 특정 `영역`에 도달하면 기존에 존재하던 컨텐츠 이외에 추가로 무언가를 보여주는 형태로 보통 사용자 경험을 제공한다.
 
 이전에는 보통 **페이징**이라는 방식을 통해서 많이 보여줬지만 페이징에서는 경험할 수 없는 인터렉션은 사용자에게 때로는 더 좋은 경험을 심어주게 된다.
 
@@ -28,11 +28,11 @@ import Image from './src/components/image'
 
 ## 스크롤 이벤트
 
-모두가 알고있는 가장 기본적인 이벤트인 \`스크롤\`만을 이용해서 먼저 구현해보았다.
+모두가 알고있는 가장 기본적인 이벤트인 `스크롤`만을 이용해서 먼저 구현해보았다.
 
 구현한 코드는 아래와 같다.
 
-```
+```typescript
 import { useEffect, useState } from 'react'
 
 const FETCH_TODO_URL = 'http://localhost:8000/todos'
@@ -72,9 +72,9 @@ function Todos() {
   }, [limit])
 
   useEffect(() => {
-    window.addEventListener('scroll', handleTodosFetch)
+    window.addEventListener('scroll', handleTodosFetch, { passive: true })
 
-    return () => window.addEventListener('scroll', handleTodosFetch)
+    return () => window.addEventListener('scroll', handleTodosFetch, { passive: true })
   }, [])
 
   return (
@@ -93,27 +93,30 @@ export default Todos
 
 결론은 브라우저의 스크롤이 최하단으로 이동되면 **limit** state가 변경되어 이를 감지하고 API를 호출해 이를 계속 쌓는 방식이다.
 
-사실 이렇게만 구현했을 때 무한 스크롤 그 자체의 기능상으로는 문제점은 없다.
+여기서 이벤트 리스너에 세 번째 인자로 **passive**를 true로 넘겨주었는데
+이는 이벤트에 내장되어있는 `preventDefault` 를 호출하지 않는 것을 선언하는 것으로 이벤트를 호출할 때 preventDefault를 감지하지 않아도 되는 수고로움을 덜어 성능에 조금이나마 도움이 된다.
+
+사실 이렇게만 구현했을 때 무한 스크롤 그 자체의 기능상으로는 문제점은 없다.
 
 하지만 이벤트가 어떻게 처리되고 있는지 확인하면 눈앞이 아득해진다. 😵‍💫
 
-이미지
+<Image src="/images/2022/08/react/console.gif" alt="scroll console" width="100%" />
 
 진짜 모든 이벤트를 하나부터 열까지 싹다 잡아오고 있다.
 
-또 문제점이 되는 부분이 바로 \`documentElement\` 객체의 **scrollTop**과 **offsetHeight**인데, 이를 사용하게 되면 특정 조건에 따라 **Reflow**가 발생하여 레이아웃의 변화가 오기 때문에 브라우저가 다시 렌더트리를 구성하게 되고 그만큼 브라우저는 추가 연산들을 하게 된다. 😇
+또 문제점이 되는 부분이 바로 `documentElement` 객체의 **scrollTop**과 **offsetHeight**인데, 이를 사용하게 되면 특정 조건에 따라 **Reflow**가 발생하여 레이아웃의 변화가 오기 때문에 브라우저가 다시 렌더트리를 구성하게 되고 그만큼 브라우저는 추가 연산들을 하게 된다. 😇
 
 즉, 이러한 이유들 때문에 최소화 하는편이 좋다.
 
-이를 가만 놔둘 수 없었던 나는 무한 스크롤에 적합한 **쓰로틀링(Throttling)**을 적용해보기로 했다.
+이를 가만 놔둘 수 없었던 나는 무한 스크롤에 적합한 **쓰로틀링**(Throttling)을 적용해보기로 했다.
 
 ## Throttling
 
 쓰로틀링은 프론트엔드 개발자라면 많이 알고 있을 개념인데, 특정 시간을 주기로 하여 이벤트를 발생시키도록 하는 개념을 말한다.
 
-보통은 직접 lodash에 있는 throttle을 많이 사용하는데(물론 직접 구현해도 무방하다) 이를 사용해 확인하기 편하도록 1초 단위로 API를 호출해보았다.
+보통은 직접 lodash에 있는 throttle을 많이 사용하는데(물론 직접 구현해도 무방하다) 이를 사용해 확인하기 편하도록 1초 단위로 이벤트를 호출해보았다.
 
-```
+```typescript
 import { throttle as _throttle } from 'lodash'
 
 // 생략..
@@ -133,14 +136,81 @@ const handleTodosFetch = _throttle(() => {
 
 기대했던 대로 스크롤시 1초마다 동작해줄까?
 
-이미지
+<Image src="/images/2022/08/react/throttle.gif" alt="scroll throttle console" width="100%" />
 
 아까의 무지막지하게 발생했던 이벤트보다는 훨씬 나아졌다. 😄
 
-여기까지만 해도 나름 스크롤 이벤트에 대한 최적화를 잘 했다고 생각했지만 조금 조사하다 보니 더 편리하고 효율적인 방법을 찾아냈다. 👨🏻‍💻
+여기까지만 해도 나름 스크롤 이벤트에 대한 최적화를 잘 했다고 생각했지만 문제점이 하나 있었다.
 
-바로 \`requestAnimationFrame\` 이라는 API다.
+바로 **setTimeout**의 경우 이벤트 루프를 통해 Call Stack으로 이동되어 처리가 되는데, 만약 Call Stack에 무언가의 이슈로 인해 비워지지 않는 상황이 온다면 1초의 시간을 보장할 수 없게 된다.
+
+이를 극복하기 위해 조금 조사하다 보니 더 편리하고 효율적인 방법을 찾아냈다. 👨🏻‍💻
+
+바로 [requestAnimationFrame](https://developer.mozilla.org/ko/docs/Web/API/Window/requestAnimationFrame) 이라는 API다.
 
 ## requestAnimationFrame
 
-<Image src="/images/2022/07/react/msw.png" alt="msw" width="100%" />
+MDN 선생님께서는 아래와 같이 설명한다.
+
+> window.requestAnimationFrame()은 브라우저에게 수행하기를 원하는 애니메이션을 알리고 다음 repaint가 진행되기 전에 해당 애니메이션을 업데이트하는 함수를 호출하게 한다.
+
+아까 **reflow**라는 단어가 나왔었는데, 그와 연관된 `repaint`라는 단어가 등장했다.
+
+브라우저는 reflow 이후에 repaint의 과정을 거치는데 레이아웃이 변경되어 reflow를 통해 렌더트리를 다시 그려야하는 상황이 오면 repaint는 이를 실제 화면에 그려주는 역할을 해주는 것이다.
+
+### Event Loop
+
+<Image src="/images/2022/08/react/eventloop.png" alt="eventloop" width="100%" />
+
+자바스크립트 개발자라면 무조건 한 번은 봤을 이미지다.
+
+각각의 API 마다 실행 이후 위치하는 Queue가 다르며 실제 Queue에서 이탈하여 Call Stack에 위치하게 되는 순서도 다르다.
+
+아까 **throttle**은 setTimeout을 기반으로 동작하므로 `Task Queue`에 위치한다.
+
+반면에 requestAnimationFrame은 그림에서 보이듯이 `Animation Frames`가 따로 존재한다. 여기에는 requestAnimationFrame에서 선언한 콜백이 위치하게 된다.
+
+그리고 놀라운 것은 Task Queue보다 더 우선순위를 갖고있다. 즉, 이벤트 루프를 통해 Call Stack으로 이동되는 순서는
+
+Microtask Queue -> Animation Frame -> Task Queue 순이다.
+
+또한 브라우저의 주사율인 **60fps**(1초에 60회)을 기준으로 처리가 되기 때문에 더욱 브라우저 친화적으로 최적화가 가능하다.
+
+이를 편하게 사용할 수 있도록 유틸 함수를 구현했다.
+
+### 유틸 함수 구현
+
+```typescript
+function throttleByAnimationFrame(callback: (...args: any) => void) {
+  return function (this: any, ...args: any[]) {
+    window.requestAnimationFrame(() => {
+      callback.apply(this, args)
+    })
+  }
+}
+```
+
+이제 실제 스크롤 이벤트에 이를 활용해보자
+
+```typescript
+// 생략..
+const handleTodosFetch = throttleByAnimationFrame(() => {
+  const 현_화면의_높이 = window.innerHeight
+  const 총_스크롤한_높이 = document.documentElement.scrollTop
+  const 전체_화면_높이 = document.documentElement.offsetHeight
+
+  if (현_화면의_높이 + 총_스크롤한_높이 >= 전체_화면_높이) {
+    setLimit((limit) => (limit += FETCH_MORE_COUNT))
+  }
+})
+
+// 생략..
+```
+
+이렇게 처리하면 스크롤 이벤트로 인한 **reflow**에 대한 문제점과 **setTimeout**로 인한 이벤트 루프 문제를 해결한 코드가 된다.
+
+여기까지 스크롤 이벤트를 통해 무한 스크롤 구현부터 최적화까지 구현해보았다.
+
+생각보다 여러 개념들이 섞여있어서 이해하기 쉽지 않았지만, 브라우저의 개념까지 들여다봤던 아주 좋은 기회였다. 👍
+
+[예시 코드](https://github.com/fronttigger/code-playground/tree/main/infinity-scroll)
