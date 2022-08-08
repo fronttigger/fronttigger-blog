@@ -38,10 +38,11 @@ export default {
   ],
   about: {
     title: '안녕하세요 👋 \n 저는 김준형입니다.',
-    description: `빠르게 바뀌어 가는 웹 생태계와 다양한 언어 및 라이브러리, 프레임워크에 관심이 많습니다.
-      항상 열려있는 사고를 통해 넓은 시야를 바라볼 수 있도록 노력합니다.
-      주도적으로 업무할 수 있는 환경을 선호합니다.
-      Typescript와 React 환경에서 개발하고 있습니다.`,
+    description: `사용자에게 유의미한 서비스를 만들기 위해 노력합니다.
+      핵심 문제를 정의하고 이를 해결하는 과정을 즐깁니다.
+      이러한 과정 속에서 얻어낸 정보와 경험을 공유하기 위해 스터디를 주도하고, 블로깅 하는 것을 좋아합니다.
+      열려있는 사고를 통해 다양한 시야를 바라볼 수 있도록 노력합니다.
+      주도적으로 업무할 수 있는 환경을 선호합니다.`,
     experiences: [
       {
         company: 'Frientrip (Frip)',
@@ -49,14 +50,17 @@ export default {
         date: '2021. 06 ~ 현재',
         projects: [
           {
-            title: '프립 디자인 시스템 개발',
+            title: 'FDS(프립 디자인 시스템) 개발',
             date: '2022. 04 ~ 현재',
-            description: '프립 디자인 시스템 개발을 진행하고 있습니다.',
+            description: 'FDS(프립 디자인 시스템) 개발을 진행하고 있습니다.',
             tasks: [
-              'Yarn Berry, Rollup을 이용한 개발환경 구성',
-              'Gitlab CI를 통한 CI/CD 환경 구성',
-              'Storybook을 이용한 컴포넌트 단위의 UI 개발',
-              'Jest와 react-testing-library를 이용한 컴포넌트 테스팅',
+              'Yarn Berry, Rollup을 활용한 프로젝트 개발 환경을 구축하여 CI 속도 개선 및 Tree Shaking',
+              'Storybook을 이용한 컴포넌트 단위의 UI 개발 및 Chromatic을 통해 배포하여 컴포넌트 공유',
+              '디자인 시스템내에서 반복되는 컴포넌트를 처리하기 위한 재사용 가능한 공통 컴포넌트 구현',
+              '프로젝트마다 동일한 스타일을 사용할 수 있도록 GlobalStyle, ThemeProvider 컴포넌트 구현 (color, font)',
+              'Gitlab Runner를 통한 CI/CD 환경 구성',
+              'Jest 와 react-testing-library를 이용한 컴포넌트 테스팅',
+              '디자인 시스템에 대한 문서화',
             ],
             stacks: [
               'Typescript',
@@ -70,17 +74,22 @@ export default {
             ],
           },
           {
-            title: '프립 웹 서비스 개발 및 유지보수',
+            title: '프립 웹 서비스 개발',
             date: '2021. 07 ~ 현재',
             description: '프립 웹 서비스와 관련된 개발을 진행하고 있습니다.',
             tasks: [
               '커머스 전반 비즈니스 플로우에 대한 이해',
-              'SSR과 CSR을 사용하여 페이지 렌더링 개선',
-              'REST API → GraphQL 마이그레이션',
+              'SSR과 CSR을 사용한 SEO 및 페이지 렌더링 개선',
+              'REST API에서 GraphQL로 마이그레이션 진행',
+              'node 12 버전에서 14 버전으로 마이그레이션 진행',
+              '반복되는 컴포넌트를 디자인 시스템으로 구현하여 기능 개발에 대한 생산성 향상',
               'Redux와 Redux-saga를 활용한 글로벌 상태관리 및 비동기 처리',
-              'npm workspaces 모노레포 환경 구성',
-              '하이브리드 앱 내 웹뷰 개발',
-              '데이터 수집 및 분석 도구 연동',
+              '자주 사용되는 유틸과 커스텀 훅 등을 분리하기 위한 npm workspaces 모노레포 환경 구성',
+              '데이터 수집을 위한 분석 SDK 연동 및 모듈화 (Amplitude, Airbridge, Braze)',
+              'firebase remote config를 통한 컴포넌트 A/B 테스팅',
+              'IAMPORT 결제 모듈 유지보수',
+              '호스트들을 위한 호스트 어드민 서비스 유지보수',
+              '웹 서비스에 대한 문서화',
             ],
             stacks: [
               'Typescript',
@@ -89,7 +98,6 @@ export default {
               'Redux-saga',
               'GraphQL Apollo',
               'styled-components',
-              'Context API',
               'Hooks',
               'HTML/CSS',
             ],
@@ -102,60 +110,25 @@ export default {
         date: '2020. 12 ~ 2021. 06',
         projects: [
           {
-            title: '백오피스 구현',
+            title: '보닥 백오피스 개발',
             date: '2020. 12 ~ 2021. 06',
-            description: '보닥 앱에 관련된 백오피스 개발을 진행하였습니다.',
+            description: '보닥 앱에 관련된 백오피스를 개발하였습니다.',
             tasks: [
-              'jQuery 기반 백오피스를 React로 전환',
-              'REST API → GraphQL 마이그레이션',
               '보험, 인슈어테크 비즈니스 관련 프로젝트 경험',
+              '기존 jQuery 기반 백오피스를 React로 전환하여 사용성 개선',
+              'REST API에서 GraphQL로 마이그레이션 진행',
+              '보험, 고객 등 여러 조건에 따른 필터링 기능 구현',
+              '유저 친화적이지 않았던 문제에 대한 사용성 개선 (에러 메시지, 로딩에 따른 컴포넌트 렌더링 등)',
+              'formik을 활용하여 복잡한 보험 관련 선택지의 form 상태관리',
             ],
             stacks: [
               'Typescript',
               'React',
               'GraphQL Apollo',
               'styled-components',
-              'Context API',
               'Hooks',
               'HTML/CSS',
             ],
-          },
-        ],
-      },
-      {
-        company: 'Grovesoft',
-        job: 'Backend Engineer',
-        date: '2019. 06 ~ 2020. 04',
-        projects: [
-          {
-            title: 'HomeCC 웹 애플리케이션 구현',
-            date: '2019. 11 ~ 2020. 04',
-            description: 'KCC 자회사의 HomeCC 설화수 웹 애플리케이션의 백오피스를 개발했습니다.',
-            tasks: [
-              '매장, 인테리어, 이벤트, 고객센터 CRUD 등 주요 기능 개발',
-              'Ajax를 통한 비동기 통신',
-              'Java 8의 Stream, Lambda ,Optional 활용',
-            ],
-            stacks: [
-              'Java 8',
-              'Springboot 2.0',
-              'JPA',
-              'Gradle',
-              'Postgresql',
-              'Javascript',
-              'JQuery',
-              'HTML/CSS',
-            ],
-          },
-          {
-            title: 'Amorepacific 설화수 웹 애플리케이션',
-            date: '2019. 09 ~ 2019. 11',
-            description: '아모레퍼시픽의 설화수 웹 애플리케이션의 백오피스를 개발했습니다.',
-            tasks: [
-              '공지사항, 상품, 예약, 계정 관리 CRUD 등 주요 기능 개발',
-              'Ajax를 통한 비동기 통신 경험',
-            ],
-            stacks: ['Java 8', 'Springboot', 'JPA', 'jQuery', 'Gradle', 'Postgresql'],
           },
         ],
       },
