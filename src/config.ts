@@ -56,11 +56,10 @@ export default {
             tasks: [
               'Yarn Berry, Rollup을 활용한 프로젝트 개발 환경을 구축하여 CI 속도 개선 및 Tree Shaking',
               'Storybook을 이용한 컴포넌트 단위의 UI 개발 및 Chromatic을 통해 배포하여 컴포넌트 공유',
-              '디자인 시스템내에서 반복되는 컴포넌트를 처리하기 위한 재사용 가능한 공통 컴포넌트 구현',
+              '디자인 시스템 내에서 반복되는 컴포넌트를 처리하기 위한 재사용 가능한 공통 컴포넌트 구현',
               '프로젝트마다 동일한 스타일을 사용할 수 있도록 GlobalStyle, ThemeProvider 컴포넌트 구현 (color, font)',
               'Gitlab Runner를 통한 CI/CD 환경 구성',
               'Jest 와 react-testing-library를 이용한 컴포넌트 테스팅',
-              '디자인 시스템에 대한 문서화',
             ],
             stacks: [
               'Typescript',
@@ -81,15 +80,12 @@ export default {
               '커머스 전반 비즈니스 플로우에 대한 이해',
               'SSR과 CSR을 사용한 SEO 및 페이지 렌더링 개선',
               'REST API에서 GraphQL로 마이그레이션 진행',
-              'node 12 버전에서 14 버전으로 마이그레이션 진행',
-              '반복되는 컴포넌트를 디자인 시스템으로 구현하여 기능 개발에 대한 생산성 향상',
               'Redux와 Redux-saga를 활용한 글로벌 상태관리 및 비동기 처리',
               '자주 사용되는 유틸과 커스텀 훅 등을 분리하기 위한 npm workspaces 모노레포 환경 구성',
               '데이터 수집을 위한 분석 SDK 연동 및 모듈화 (Amplitude, Airbridge, Braze)',
               'firebase remote config를 통한 컴포넌트 A/B 테스팅',
               'IAMPORT 결제 모듈 유지보수',
-              '호스트들을 위한 호스트 어드민 서비스 유지보수',
-              '웹 서비스에 대한 문서화',
+              '호스트들을 위한 호스트 백오피스 서비스 유지보수',
             ],
             stacks: [
               'Typescript',
@@ -116,10 +112,9 @@ export default {
             tasks: [
               '보험, 인슈어테크 비즈니스 관련 프로젝트 경험',
               '기존 jQuery 기반 백오피스를 React로 전환하여 사용성 개선',
-              'REST API에서 GraphQL로 마이그레이션 진행',
               '보험, 고객 등 여러 조건에 따른 필터링 기능 구현',
               '유저 친화적이지 않았던 문제에 대한 사용성 개선 (에러 메시지, 로딩에 따른 컴포넌트 렌더링 등)',
-              'formik을 활용하여 복잡한 보험 관련 선택지의 form 상태관리',
+              'formik을 활용하여 복잡한 보험 선택지에 대한 form 상태관리',
             ],
             stacks: [
               'Typescript',
