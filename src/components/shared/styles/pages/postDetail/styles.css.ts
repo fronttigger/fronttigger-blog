@@ -30,6 +30,7 @@ export const title = style([
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.domain.detail.title,
     textAlign: 'center',
+    overflowWrap: 'break-word',
   },
 ])
 
