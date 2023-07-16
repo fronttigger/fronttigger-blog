@@ -45,6 +45,34 @@ export default {
       주도적으로 업무할 수 있는 환경을 선호합니다.`,
     experiences: [
       {
+        company: '코드스테이츠(CodeStates)',
+        job: 'Frontend Engineer',
+        date: '2022. 10 ~',
+        projects: [
+          {
+            title: 'BOWL 웹 서비스 개발',
+            date: '2022. 10 ~ ',
+            description: '프로젝트를 제출하고 리뷰할 수 있는 웹 서비스 개발을 진행하고 있습니다.',
+            tasks: [
+              '반복되는 컴포넌트의 재사용성과 확장성을 높이기 위한 공통 컴포넌트 구현',
+              'Context API를 활용하여 ​선언적으로 컴포넌트 상태 관리',
+              '로딩 상태를 관리하기 위한 Suspense 구현',
+              'tailwind CSS를 Emotion으로 마이그레이션 진행',
+              'Storybook을 이용한 컴포넌트 단위의 UI 개발 및 Github Pages 배포',
+            ],
+            stacks: [
+              'Typescript',
+              'Next.js',
+              'React Query',
+              'Emotion',
+              'Context API',
+              'Hooks',
+              'HTML/CSS',
+            ],
+          },
+        ],
+      },
+      {
         company: 'Frientrip (Frip)',
         job: 'Frontend Engineer',
         date: '2021. 06 ~ 2022. 10',
@@ -52,7 +80,7 @@ export default {
           {
             title: '프립 웹 서비스 개발',
             date: '2021. 07 ~ 2022. 10',
-            description: '프립 웹 서비스와 관련된 개발을 진행하고 있습니다.',
+            description: '프립 웹 서비스와 관련된 개발을 진행했습니다.',
             tasks: [
               '반복되는 컴포넌트의 재사용성을 높이기 위한 공통 컴포넌트 구현',
               'REST API에서 GraphQL로 마이그레이션 진행',
@@ -76,9 +104,9 @@ export default {
           {
             title: 'FDS(프립 디자인 시스템) 개발',
             date: '2022. 04 ~ 2022. 10',
-            description: 'FDS(프립 디자인 시스템) 개발을 진행하고 있습니다.',
+            description: 'FDS(프립 디자인 시스템) 개발을 진행하였습니다.',
             tasks: [
-              '환경 구축부터 구현까지 1인으로 진행한 있는 프로젝트',
+              '환경 구축부터 구현까지 1인으로 진행한 프로젝트',
               'Yarn Berry, Rollup을 활용한 프로젝트 개발 환경을 구축하여 CI 속도 개선 및 Tree Shaking',
               'Storybook을 이용한 컴포넌트 단위의 UI 개발 및 Chromatic을 통해 배포하여 컴포넌트 공유',
               '프로젝트마다 동일한 스타일을 사용할 수 있도록 GlobalStyle, ThemeProvider 컴포넌트 구현 (color, font)',
@@ -94,33 +122,6 @@ export default {
               'styled-components',
               'Jest',
               'react-testing-library',
-            ],
-          },
-        ],
-      },
-      {
-        company: 'Aijinet (Bodoc)',
-        job: 'Frontend Engineer',
-        date: '2020. 12 ~ 2021. 06',
-        projects: [
-          {
-            title: '보닥 백오피스 개발',
-            date: '2020. 12 ~ 2021. 06',
-            description: '보닥 앱에 관련된 백오피스를 개발하였습니다.',
-            tasks: [
-              '입사 후 처음으로 맡은 1인 프로젝트',
-              '기존 jQuery 기반 백오피스를 React로 마이그레이션',
-              '보험 정보, 고객 정보 등 여러 조건에 따른 필터링 기능 구현',
-              '유저 친화적이지 않았던 문제에 대한 사용성 개선',
-              'formik을 활용하여 복잡한 보험 선택지에 대한 form 상태관리',
-            ],
-            stacks: [
-              'Typescript',
-              'React',
-              'GraphQL Apollo',
-              'styled-components',
-              'Hooks',
-              'HTML/CSS',
             ],
           },
         ],
