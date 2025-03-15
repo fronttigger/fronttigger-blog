@@ -11,7 +11,7 @@ export default function Footer() {
           {config.author.contacts.email}
         </a>
       </span>
-      <span className={styles.copyright}>Designed by Fronttigger © 2023 All rights reserved.</span>
+      <span className={styles.copyright}>Designed by Fronttigger © 2025 All rights reserved.</span>
     </footer>
   )
 }
